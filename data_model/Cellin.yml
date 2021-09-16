@@ -1,0 +1,102 @@
+
+- location: Cellin
+  destination:
+    - location: Crusader
+      distance: 50
+    - location: Gallete Family Farms
+      distance: 50
+    - location: Terra Mills Hydrofarm
+      distance: 50
+    - location: Tram Myers Mining
+      distance: 50
+    - location: Hickes Research Outpost
+      distance: 50
+      
+- location: Hickes Research Outpost
+  destination:
+    - location: Cellin
+      distance: 50
+  buy:
+    - product: Agricultural Supplies
+      price: 1.00
+    - product: Medical Supplies
+      price: 17.05
+    - product: Stims
+      price: 2.82
+    - product: Waste
+      price: 0.01     
+  sell:
+    - product: Astatine
+      price: 8.51
+    - product: Chlorine
+      price: 1.70
+    - product: Fluorine
+      price: 2.95
+    - product: Distilled Spirits
+      price: 5.55
+    - product: Iodine
+      price: 0.45
+    - product: Processed Food
+      price: 1.50  
+          
+- location: Terra Mills Hydrofarm
+  destination:
+    - location: Cellin
+      distance: 50
+  buy:
+    - product: Distilled Spirits
+      price: 4.08
+    - product: Waste
+      price: 0.01
+  sell:
+    - product: Agricultural Supplies
+      price: 1.20
+    - product: Medical Supplies
+      price: 18.11
+    - product: Processed Food
+      price: 1.50
+
+- location: Tram Myers Mining
+  destination:
+    - location: Cellin
+      distance: 50
+  buy:
+    - product: Aluminium
+      price: 1.11
+    - product: Corundum
+      price: 2.30
+    - product: Diamond
+      price: 5.85
+    - product: Laranite
+      price: 27.54
+    - product: Titanium
+      price: 7.98
+    - product: Waste
+      price: 0.01    
+  sell:
+    - product: Medical Supplies
+      price: 11.56
+
+- location: Gallete Family Farms
+  destination:
+    - location: Cellin
+      distance: 50
+  buy:
+    - product: Processed Food
+      price: 1.20
+    - product: Revenant Tree Pollen
+      price: 1.32
+    - product: Distilled Spirits
+      price: 4.58
+    - product: Waste
+      price: 0.01
+  sell:
+    - product: Agricultural Supplies
+      price: 1.11
+    - product: Medical Supplies
+      price: 17.81
+
+
+
+      
+      

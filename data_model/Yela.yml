@@ -1,0 +1,153 @@
+- location: Yela
+  destination:
+    - location: Crusader
+      distance: 50
+    - location: Grim Hex
+      distance: 50
+    - location: Benson Mining Outpost
+      distance: 50
+    - location: Deakins Research Outpost
+      distance: 50
+    - location: ArcCorp Mining Area 157
+      distance: 50
+      
+- location: Grim Hex
+  destination:
+    - location: Yela
+      distance: 50
+  buy:
+    - product: Scrap
+      price: 1.49
+    - product: Waste
+      price: 0.01
+  sell:
+    - product: Agricium
+      price: 27.5
+    - product: Agricultural Supplies
+      price: 1.15
+    - product: Altruciatoxin
+      price: 52.43
+    - product: Aluminium
+      price: 1.3
+    - product: Astatine
+      price: 9.0
+    - product: Beryl
+      price: 4.35
+    - product: Chlorine
+      price: 1.71
+    - product: Corundum
+      price: 2.71
+    - product: Diamond
+      price: 6.98
+    - product: Distilled Spirits
+      price: 5.46
+    - product: Etam
+      price: 101.36
+    - product: Fluorine
+      price: 2.94
+    - product: Gold
+      price: 6.41
+    - product: Hydrogen
+      price: 1.11
+    - product: Iodine
+      price: 0.45
+    - product: Laranite
+      price: 30.57
+    - product: Neon
+      price: 89.34
+    - product: Processed Food
+      price: 1.5
+    - product: Quartz
+      price: 1.55
+    - product: Stims
+      price: 3.8
+    - product: Titanium
+      price: 8.8
+    - product: Tungsten
+      price: 4.03
+    - product: Widow
+      price: 126.03
+      
+- location: Benson Mining Outpost
+  destination:
+    - location: Yela
+      distance: 50
+  buy:
+    - product: Astatine
+      price: 7.87
+    - product: Chlorine
+      price: 1.3
+    - product: Fluorine
+      price: 2.35
+    - product: Hydrogen
+      price: 0.90
+    - product: Iodine
+      price: 0.35
+    - product: Waste
+      price: 0.01
+  sell:
+    - product: Distilled Spirits
+      price: 5.55
+    - product: Medical Supplies
+      price: 17.55
+    - product: Processed Food
+      price: 1.5
+    - product: Stims
+      price: 3.8  
+      
+- location: ArcCorp Mining Area 157
+  destination:
+    - location: Yela
+      distance: 50
+  buy:
+    - product: Astatine
+      price: 7.0
+    - product: Chlorine
+      price: 1.3
+    - product: Fluorine
+      price: 2.35
+    - product: Hydrogen
+      price: 0.90
+    - product: Iodine
+      price: 0.35
+    - product: Waste
+      price: 0.01
+  sell:
+    - product: Distilled Spirits
+      price: 5.45
+    - product: Medical Supplies
+      price: 17.51
+    - product: Processed Food
+      price: 1.5
+    - product: Stims
+      price: 3.77
+
+- location: Deakins Research Outpost
+  destination:
+    - location: Yela
+      distance: 50
+  buy:
+    - product: Agricultural Supplies
+      price: 1.0
+    - product: Medical Supplies
+      price: 15.84
+    - product: Stims
+      price: 2.92
+    - product: Waste
+      price: 0.01
+  sell:
+    - product: Astatine
+      price: 8.23
+    - product: Chlorine
+      price: 1.7
+    - product: Distilled Spirits
+      price: 5.56
+    - product: Fluorine
+      price: 2.84
+    - product: Iodine
+      price: 0.45
+    - product: Processed Food
+      price: 1.5
+
+
+      

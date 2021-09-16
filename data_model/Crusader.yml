@@ -1,0 +1,18 @@
+- location: Crusader
+  destination:
+    - location: Yela
+      distance: 50
+    - location: Cellin
+      distance: 50
+    - location: Daymar
+      distance: 100
+
+- location: Daymar
+  destination:
+    - location: Yela
+      distance: 100
+    - location: Cellin
+      distance: 100
+    - location: Crusader
+      distance: 100
+      
