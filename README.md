@@ -3,9 +3,7 @@
 
 ## General
 
-As many martingale provider flourish, like Versemate, Gallog, uexcorp, SC trade tools, here yet another "Best trade route" finders. With somes differences, no website, no fancy GUI, all source open, all data open. Up to you to test it on your computer ! (But do not ask me how to run it on MS windows :shrug:)
-I do not claim this tool is perfect, bug free or accurate ! Always double check what you plan.
-Still feel free to contribute to this tool if you want :hugs:
+As many martingale provider flourish, like Versemate, Gallog, uexcorp, SC trade tools, here yet another "Best trade route" finders. With somes differences, no website, no fancy GUI, all source open, all data open. Up to you to test it on your computer ! (But do not ask me how to run it on MS windows :shrug:). I do not claim this tool is perfect, bug free or accurate ! Always double check what you plan. Still feel free to contribute to this tool if you want :hugs:.
 
 ### Current feature
 
@@ -21,20 +19,16 @@ Still feel free to contribute to this tool if you want :hugs:
 
 - prep: simpler syntax for bi-directionnal location link
 - prep: review all to clean String usage & memory 
-
 - post: visu cargo ?
 - post: width float & name & unit
 - post: update arrow shape (action vs state)
 - post: use time for state node position (use of subgraph & rank=same ? -> time slice)
 - post: use location for state node position (geographical view, subgraph if same location)
-
 - cleaner get_location with CONSTANT ?
 - correct float overflow with manual tweak ?
 - update heuristic: max profit per product -> impact locality attractiveness ?
 - eval fn: clean cargo with map / sum
-
 - multi: better insert child in queue (not 1 by 1 but by batch) ?
-
 - node access hasmap: map[key] vs map.get(key).unwrap() syntax uniformaisation
 
 #### Futur work
@@ -61,17 +55,16 @@ Still feel free to contribute to this tool if you want :hugs:
 
 ### Install
 
-Clone the repo
-(Optional) Adjust data model
-Edit settings
-Run cargo !
+1. Clone the repo
+2. (Optional) Adjust data model
+3. Edit settings
+4. Run cargo !
 
 ### Data model
 
-Universe, Product, Location are written in `data_model/*.yml` files
-Each file is a list of location like this:
+Universe, Product, Location are written in `data_model/*.yml` files. Each file is a list of location:
 
-```
+```yaml
 - location: location1_name
   destination:
     - location: location2_name
