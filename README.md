@@ -33,10 +33,10 @@ As many martingale provider flourish, like Versemate, Gallog, uexcorp, SC trade 
 
 #### Futur work
 
-- [x] multithreading
 - [ ] add product info (gas / metal / illegal)
 - [ ] add location info (armistice / blue pad / hidden)
 - [ ] fine grained cargo for < UEC (aka < 100 unit)
+- [ ] refactoring codebase with Ship profile (include cargo, fuel consumption, speed, travel time, ability to land)
 - [ ] handle max flow for buy/sell
 - [ ] introduce action wait in children generation
 - [ ] handle fuel cost
@@ -50,6 +50,7 @@ As many martingale provider flourish, like Versemate, Gallog, uexcorp, SC trade 
 - [ ] support celestial movement for accurate distance & time & ephemeris
 - [ ] support same-travel delivery quest ?
 - [ ] Fancy GUI ?
+- [ ] clean .dot output & auto build with dot librabry ?
 
 ## Howto
 
@@ -57,8 +58,7 @@ As many martingale provider flourish, like Versemate, Gallog, uexcorp, SC trade 
 
 1. Clone the repo
 2. (Optional) Adjust data model
-3. Edit settings
-4. Run cargo !
+3. Run !
 
 ### Data model
 
