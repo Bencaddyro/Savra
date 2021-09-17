@@ -34,19 +34,16 @@ fn read_yaml(path: &str) -> Vec<Entry> {
 }
 
 
-
-
-
-
 fn write_data(file: &mut File, location: BTreeSet<String>, product_info: HashMap<String,InfoProd>, get_map: String, get_buy: String, get_sell: String) -> std::io::Result<()> {
 
     file.write(b"use std::collections::HashMap;\n")?;
-    
+    file.write(b"use strum::EnumString;\n")?;
+
     let product = product_info.keys().map(|x| x.to_owned()).collect::<Vec<String>>();
     
     // Enum Location
     file.write(b"\n// Auto-generated Location\n")?;
-    file.write(b"#[derive(Clone, Copy, Hash, Eq, PartialOrd, PartialEq, Debug)]\n")?;
+    file.write(b"#[derive(Clone, Copy, Hash, Eq, PartialOrd, PartialEq, Debug, EnumString)]\n")?;
     
     let s = format!("pub enum Location {{\n  {}\n}}",location.into_iter().collect::<Vec<String>>().join(",\n  "));
     file.write(s.as_bytes())?;

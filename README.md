@@ -89,17 +89,20 @@ Universe, Product, Location are written in `data_model/*.yml` files. Each file i
 Every location in destination must have their entry somewhere (not necessarily on same file).
 For now only distance stand for location to location link, further refinement is planned. Link can be asymetric (place A to place B but no A from B) and so distance (think lift off vs landing, not same duration)
 
-### Settings
+### Options
 
-Right now there is no argument support, so you need to edit `src/main.rs`
-There is 4 variable to set :
-- `wallet` amount of **money** you start with
-- `cargo` your **cargo capacity**
-- `start_location` your **starting place** (with `Location::` prefix)
-- `time_bound` how long the run should go ? the result will be *at least* that long
+Currently there is 4 value to set :
+```
+-c, --cargo <cargo>          Cargo capacity
+-l, --location <location>    Starting location
+-m, --money <money>          Starting money
+-t, --time <time>            Time limit for the run
+```
 
-Depending on your hardware you might want to increase number of thread with
-- `n_thread` numbre of thread for tree exploration
+Additionaly, depending on your hardware you might want to set number of thread
+```
+-n, --thread <thread>        Number of thread for parallel computing
+```
 
 ### Resolution principle
 
