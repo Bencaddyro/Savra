@@ -1,0 +1,117 @@
+- location: Daymar
+  destination:
+    - location: Crusader
+      distance: 50
+    - location: ArcCorp Mining Area 141
+      distance: 50
+    - location: Bountiful Harvest Hydroponics
+      distance: 50
+    - location: Kudre Ore
+      distance: 50
+    - location: Shubin Mining Facility SCD-1
+      distance: 50
+      
+- location: ArcCorp Mining Area 141
+  destination:
+    - location: Daymar
+      distance: 50
+  buy:
+    - product: Agricium
+      price: 24.94
+    - product: Beryl
+      price: 4.09
+    - product: Corundum
+      price: 2.3
+    - product: Quartz
+      price: 1.26
+    - product: Tungsten
+      price: 3.56
+    - product: Waste
+      price: 0.01
+  sell:
+    - product: Distilled Spirits
+      price: 5.47
+    - product: Medical Supplies
+      price: 17.53
+    - product: Processed Food
+      price: 1.5
+    - product: Stims
+      price: 3.8
+      
+- location: Bountiful Harvest Hydroponics
+  destination:
+    - location: Daymar
+      distance: 50
+  buy:
+    - product: Processed Food
+      price: 1.2
+    - product: Revenant Tree Pollen
+      price: 1.32
+    - product: Distilled Spirits
+      price: 4.65
+    - product: Waste
+      price: 0.01
+  sell:
+    - product: Agricultural Supplies
+      price: 1.14
+    - product: Medical Supplies
+      price: 17.58
+    - product: Stims
+      price: 3.58
+      
+- location: Kudre Ore
+  destination:
+    - location: Daymar
+      distance: 50
+  buy:
+    - product: Agricium
+      price: 24.44
+    - product: Beryl
+      price: 4.05
+    - product: Gold
+      price: 5.67
+    - product: Quartz
+      price: 1.25
+    - product: Tungsten
+      price: 3.55
+    - product: Waste
+      price: 0.01
+  sell:
+    - product: Distilled Spirits
+      price: 5.55
+    - product: Medical Supplies
+      price: 17.67
+    - product: Processed Food
+      price: 1.5
+    - product: Stims
+      price: 3.8
+
+- location: Shubin Mining Facility SCD-1
+  destination:
+    - location: Daymar
+      distance: 50
+  buy:
+    - product: Beryl
+      price: 4.05
+    - product: Corundum
+      price: 2.3
+    - product: Gold
+      price: 5.86
+    - product: Quartz
+      price: 1.25
+    - product: Tungsten
+      price: 3.8
+    - product: Waste
+      price: 0.01
+  sell:
+    - product: Distilled Spirits
+      price: 5.55
+    - product: Medical Supplies
+      price: 17.79
+    - product: Processed Food
+      price: 1.5
+    - product: Stims
+      price: 3.8
+
+
+      
