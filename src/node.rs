@@ -86,7 +86,7 @@ impl Node {
         let mut wealth = self.wallet as f64;
         if self.time < time_bound {// add cargo "max" value if not overtime
             for (p,a) in &self.cargo {// to clean with map / sum
-                wealth += p.max() * 100.0 * *a as f64;
+                wealth += p.max() * *a as f64;
             }
         }
         self.score = wealth / self.time;
@@ -100,7 +100,7 @@ impl Node {
     
     pub fn buy(&mut self, product: Product, amount: usize, price: f64){
         //println!("wallet {}, amount {}, price {}, total {}",self.wallet, amount, price, (100.0 * amount as f64 * price).ceil() as usize);
-        self.wallet -= ((100 * amount) as f64 * price).ceil() as usize;
+        self.wallet -= (amount as f64 * price).ceil() as usize;
         if let Some(current) = self.cargo.get_mut(&product) {
             *current += amount;
         }else{
@@ -110,7 +110,7 @@ impl Node {
     }
     
     pub fn sell(&mut self, product: Product, amount: usize, price: f64){
-        self.wallet += ((100 * amount) as f64 * price).ceil() as usize;        
+        self.wallet += (amount as f64 * price).ceil() as usize;        
         if let Some(current) = self.cargo.get_mut(&product) {
             *current -= amount;
             if *current == 0 { self.cargo.remove(&product); }
@@ -120,6 +120,21 @@ impl Node {
     
     pub fn wait(&mut self, time: f64){
         self.time += time;
+    }
+    
+    fn space(&self, product: Product) -> usize {
+        let mut space = self.capacity * 100;
+        for (p,a) in self.cargo.iter() {
+            if product == *p {
+                space -= a;
+            } else {
+                space -= 100 * (a / 100);
+                if a % 100 > 0 {
+                space -= 100;
+                }            
+            }
+        }
+        return space;    
     }
 }
 
@@ -155,11 +170,10 @@ pub fn gen_children(node: Arc<Node>, time_bound: f64) -> Vec<Arc<Node>> {
             children.push(Arc::new(child));
     }
     //try to buy something
-    if (buy_table.contains_key(&node.location)) & //location sell something
-        (node.capacity - node.cargo.values().sum::<usize>() > 0) {//cargo not full
+    if buy_table.contains_key(&node.location) {//location sell something
         for (product,price) in buy_table.get(&node.location).unwrap() {
-            let space = node.capacity - node.cargo.values().sum::<usize>(); //empty space in cargo
-            let invest = (node.wallet as f64 / (*price * 100.0)).floor() as usize; //max invest capacity
+            let space = node.space(*product); //empty space in cargo
+            let invest = (node.wallet as f64 / *price).floor() as usize; //max invest capacity
             let amount = cmp::min(space, invest);
             if amount > 0 {
                 let mut child = child_action(&node, Action::Buy(*product, amount, *price));

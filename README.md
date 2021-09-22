@@ -35,7 +35,7 @@ As many martingale provider flourish, like Versemate, Gallog, uexcorp, SC trade 
 
 - [ ] add product info (gas / metal / illegal)
 - [ ] add location info (armistice / blue pad / hidden)
-- [ ] fine grained cargo for < UEC (aka < 100 unit)
+- [x] fine grained cargo for < UEC (aka < 100 unit)
 - [ ] refactoring codebase with Ship profile (include cargo, fuel consumption, speed, travel time, ability to land)
 - [ ] handle max flow for buy/sell
 - [ ] introduce action wait in children generation
