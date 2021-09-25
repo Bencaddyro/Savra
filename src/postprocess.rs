@@ -2,7 +2,7 @@ use std::io::Write;
 use std::fs::File;
 use std::collections::BinaryHeap;
 use std::sync::Arc;
-
+use chrono;
 use crate::data::*;
 use crate::node::*;
 
@@ -68,7 +68,7 @@ fn write_dot(file: &mut File, heap: &mut BinaryHeap<Arc<Node>>) -> std::io::Resu
     let mut node = heap.pop().unwrap();
     while !node.is_root() {
         file.write(node.dot().as_bytes())?;
-        node = Arc::clone(&node.parent.as_ref().unwrap());
+        node = node.parent();
     }
     file.write(node.dot().as_bytes())?;
     
@@ -114,20 +114,28 @@ pub fn post_process(path: String, heap: &mut BinaryHeap<Arc<Node>>) -> std::io::
     Ok(())
 }
 
-
 fn backtrace(leaf: &Arc<Node>) {
 
+    let mut file = File::create(format!("../rez{:?}",chrono::offset::Utc::now())).unwrap();
+    file.write(format!("Winner !\n{}\n",leaf).as_bytes());
+    
+
     let mut actions = Vec::new();
-    let mut node = leaf;
+    let mut node: Arc<Node> = Arc::clone(leaf);
     while !node.is_root() {
-        actions.push(format!("[{};{}¤UEC] : {}", node.location, node.wallet, node.action));
-        node = node.parent.as_ref().unwrap();
+        actions.push(format!("[{};{}¤UEC] : {}", node.location(), node.wallet(), node.action()));
+        let next = node.parent();
+        node = next;
     }
+    
+
     
     actions.reverse();
     println!("Trace :");
     for action in actions {
         println!("{}",action);
+        file.write(action.as_bytes());
+        file.write(b"\n");
     }
 
 }

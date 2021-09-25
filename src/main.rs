@@ -47,7 +47,7 @@ fn main() {
     let mut handles = vec![];
     
     //init root
-    let root = Arc::new(root(money, location, cargo));
+    let root = Arc::new(root(money, location, cargo, time));
     m_heap.lock().unwrap().push(root);
     
     {// start thread 0 in advance for queue population
@@ -86,7 +86,7 @@ fn core_process(n: usize, time_bound: f64, m_heap: Arc<Mutex<BinaryHeap<Arc<Node
         drop(heap);
         
         // if stop condition
-        if node.time > time_bound{
+        if node.time() > time_bound{
             println!("thread {}, loop {} winner",n, i);
             //put it back in queue
             let mut heap = m_heap.lock().unwrap();
@@ -96,7 +96,7 @@ fn core_process(n: usize, time_bound: f64, m_heap: Arc<Mutex<BinaryHeap<Arc<Node
         }
         
         // populate children & add to queue
-        let children = gen_children(Arc::clone(&node), time_bound);
+        let children = gen_children(Arc::clone(&node));
         for child in children {
             //println!("thread {}\n{}",n,child);
             let mut heap = m_heap.lock().unwrap();

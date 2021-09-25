@@ -19,7 +19,7 @@ As many martingale provider flourish, like Versemate, Gallog, uexcorp, SC trade 
 
 Due to last update, the project need to reduce memory footprint for calculation, we will switch from in-node storage to action-based recalculation to get information for leaf node, keeping only action (the core of information modification). A time execution overhead will rise but hopefully it will be minor comparing to memory footprint reduction.
 
--[] Done
+-[ ] Done
 
 Same paradigm will be employed for incoming "product flow" feature
 

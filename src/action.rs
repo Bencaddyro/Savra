@@ -2,7 +2,7 @@ use std::fmt;
 
 use crate::data::*;
 
-#[derive(Clone, Copy)]
+#[derive(Debug, Clone, Copy)]
 pub enum Action {
     Travel(Location, f64),
     Buy(Product,usize,f64),
