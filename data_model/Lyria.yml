@@ -1,0 +1,209 @@
+- location: Lyria
+  destination:
+    - location: Paradise Cove
+      distance: 50
+    - location: Humboldt Mines
+      distance: 50
+    - location: Loveridge Mineral Reserve
+      distance: 50
+    - location: The Orphanage
+      distance: 50
+
+- location: The Orphanage
+  destination:
+    - location: Lyria
+      distance: 50
+  buy:
+    - product: Altruciatoxin
+      price: 42.5
+      flow: 100
+      capacity: 5000
+    - product: Etam
+      price: 85
+      flow: 100
+      capacity: 5000
+    - product: SLAM
+      price: 120
+      flow: 100
+      capacity: 5000
+    - product: Waste
+      price: 0.01
+      flow: 40
+      capacity: 7500
+  sell:
+    - product: Agricultural Supplies
+      price: 1.2
+      flow: 500
+      capacity: 100000
+    - product: Distilled Spirits
+      price: 5.55
+      flow: 2000
+      capacity: 20000
+    - product: Hydrogen
+      price: 1.1
+      flow: 500
+      capacity: 10000
+    - product: Laranite
+      price: 31.01
+      flow: 2000
+      capacity: 10000
+    - product: Medical Supplies
+      price: 19.25
+      flow: 100
+      capacity: 1000
+    - product: Processed Food
+      price: 1.5
+      flow: 500
+      capacity: 100000
+    - product: Revenant Tree Pollen
+      price: 1.69
+      flow: 3000
+      capacity: 30000
+    - product: Stims
+      price: 3.81
+      flow: 400
+      capacity: 2000
+
+
+- location: Loveridge Mineral Reserve
+  destination:
+    - location: Lyria
+      distance: 50
+  buy:
+    - product: Astatine
+      price: 7
+      flow: 90
+      capacity: 30000
+    - product: Chlorine
+      price: 1.31
+      flow: 1292
+      capacity: 576000
+    - product: Fluorine
+      price: 2.35
+      flow: 180804
+      capacity: 999900
+    - product: Hydrogen
+      price: 0.9
+      flow: 1194
+      capacity: 576000
+    - product: Iodine
+      price: 0.35
+      flow: 913
+      capacity: 576000
+    - product: Waste
+      price: 0.01
+      flow: 40
+      capacity: 7500
+  sell:
+    - product: Aphorite
+      price: 152.51
+      flow: 1000
+      capacity: 100000
+    - product: Distilled Spirits
+      price: 5.55
+      flow: 400
+      capacity: 16000
+    - product: Dolivine
+      price: 130
+      flow: 1000
+      capacity: 100000
+    - product: Hadanite
+      price: 275
+      flow: 1000
+      capacity: 100000
+    - product: Medical Supplies
+      price: 19.25
+      flow: 2
+      capacity: 5000
+    - product: Processed Food
+      price: 1.5
+      flow: 1000
+      capacity: 576000
+    - product: Stims
+      price: 3.81
+      flow: 300
+      capacity: 2000
+
+- location: Humboldt Mines
+  destination:
+    - location: Lyria
+      distance: 50
+  buy:
+    - product: Chlorine
+      price: 1.31
+      flow: 3000
+      capacity: 500000
+    - product: Corundum
+      price: 2.3
+      flow: 12000
+      capacity: 600000
+    - product: Fluorine
+      price: 2.35
+      flow: 6000
+      capacity: 750000
+    - product: Gold
+      price: 5.41
+      flow: 10000
+      capacity: 60000
+    - product: Titanium
+      price: 7.1
+      flow: 1200
+      capacity: 800000
+    - product: Waste
+      price: 0.01
+      flow: 40
+      capacity: 7500
+  sell:
+    - product: Aphorite
+      price: 152.51
+      flow: 1000
+      capacity: 100000
+    - product: Distilled Spirits
+      price: 5.55
+      flow: 120
+      capacity: 16000
+    - product: Dolivine
+      price: 130
+      flow: 1000
+      capacity: 100000
+    - product: Hadanite
+      price: 275
+      flow: 1000
+      capacity: 100000
+    - product: Medical Supplies
+      price: 19.25
+      flow: 50
+      capacity: 5000
+    - product: Processed Food
+      price: 1.5
+      flow: 2000
+      capacity: 500000
+    - product: Stims
+      price: 3.81
+      flow: 50
+      capacity: 5000
+
+
+- location: Paradise Cove
+  destination:
+    - location: Lyria
+      distance: 50
+  buy:
+    - product: Etam
+      price: 85
+      flow: 100
+      capacity: 2000
+    - product: Neon
+      price: 70
+      flow: 100
+      capacity: 2000
+    - product: Waste
+      price: 0.01
+      flow: 40
+      capacity: 7500
+  sell:
+    - product: Revenant Tree Pollen
+      price: 1.69
+      flow: 3000
+      capacity: 30000
+
