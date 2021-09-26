@@ -18,6 +18,8 @@ struct Destination {
 struct Goods {
     product: String,
     price: f64,
+    flow: Option<usize>,
+    capacity: Option<usize>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
