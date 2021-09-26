@@ -19,7 +19,7 @@ As many martingale provider flourish, like Versemate, Gallog, uexcorp, SC trade 
 
 Due to last update, the project need to reduce memory footprint for calculation, we will switch from in-node storage to action-based recalculation to get information for leaf node, keeping only action (the core of information modification). A time execution overhead will rise but hopefully it will be minor comparing to memory footprint reduction.
 
--[ ] Done
+-[x] Done
 
 Same paradigm will be employed for incoming "product flow" feature
 
@@ -38,6 +38,7 @@ Same paradigm will be employed for incoming "product flow" feature
 - eval fn: clean cargo with map / sum
 - multi: better insert child in queue (not 1 by 1 but by batch) ?
 - node access hasmap: map[key] vs map.get(key).unwrap() syntax uniformaisation
+- replace hashmap for location & product to static array
 
 #### Futur work
 
@@ -50,7 +51,7 @@ Same paradigm will be employed for incoming "product flow" feature
 - [ ] handle fuel cost
 - [ ] handle price variability from current agent
 - [ ] introduce fine graine amount choice in children generation
-- [ ] comparison over A* pruning method over Monte Carlo variant
+- [ ] comparison of A* pruning method over Monte Carlo variant
 
 #### Futur futur work
 
