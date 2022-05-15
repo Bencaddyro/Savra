@@ -3,12 +3,12 @@ use crate::Product;
 
 #[derive(Debug, Clone)]
 pub struct Cargo {
-    capacity: usize,
-    cargo: HashMap<Product,usize>,
+    pub capacity: usize,
+    pub cargo: HashMap<Product,usize>,
 }
 
 impl Cargo {
-    fn add(self, product: Product, amount: usize) -> Cargo {
+    pub fn add(self, product: Product, amount: usize) -> Cargo {
         let mut c = self.clone();
         if let Some(current) = c.cargo.get_mut(&product) {
             *current += amount;
@@ -18,7 +18,7 @@ impl Cargo {
         c
     }
     
-    fn remove(self, product: Product, amount: usize) -> Cargo {
+    pub fn remove(self, product: Product, amount: usize) -> Cargo {
         let mut c = self.clone();
         if let Some(current) = c.cargo.get_mut(&product) {
             *current -= amount;
@@ -27,7 +27,7 @@ impl Cargo {
         c
     }
     
-    fn space(&self, product: Product) -> usize {
+    pub fn space(&self, product: Product) -> usize {
         let mut space = self.capacity * 100;
         for (p,a) in self.cargo.iter() {
             if product == *p {

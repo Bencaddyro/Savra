@@ -9,13 +9,13 @@ mod action;
 mod node;
 mod data;
 mod dataplus;
-mod postprocess;
+//mod postprocess;
 mod cargo;
 mod state;
 
 use crate::node::*;
 use crate::data::*;
-use crate::postprocess::*;
+//use crate::postprocess::*;
 
 
 
@@ -49,32 +49,35 @@ fn main() {
     let mut handles = vec![];
     
     //init root
-    let root = Arc::new(root(money, location, cargo, time));
-    m_heap.lock().unwrap().push(root);
-    
+    let root = Arc::new(root(money, location, cargo));
+
+    m_heap.lock().unwrap().push(Arc::clone(&root));
+
     {// start thread 0 in advance for queue population
     let m_heap = Arc::clone(&m_heap);
     let handle = thread::spawn(move || { core_process(0, time, m_heap) });
     handles.push(handle);
     }
     thread::sleep(Duration::from_millis(1));
-    
+    /*
     // everyone GET IN HERE
     for n in 1..thread {
         let m_heap = Arc::clone(&m_heap);
         let handle = thread::spawn(move || { core_process(n, time, m_heap) });
         handles.push(handle);
     }
-    
+    */
     // wait everyone
     for handle in handles {
         handle.join().unwrap();
     }
-    
+    /*
     // Post process
     let mut heap = m_heap.lock().unwrap();
     let output = "../";
-    post_process(output.to_string(), &mut heap).unwrap();
+    //post_process(output.to_string(), &mut heap).unwrap();
+
+    */
 }
 
 fn core_process(n: usize, time_bound: f64, m_heap: Arc<Mutex<BinaryHeap<Arc<Node>>>>) {
@@ -83,11 +86,17 @@ fn core_process(n: usize, time_bound: f64, m_heap: Arc<Mutex<BinaryHeap<Arc<Node
         println!("thread {}, loop {}",n, i);
         
         // get best node
+        println!("Get best node");
         let mut heap = m_heap.lock().unwrap();
-        let node: Arc<Node> = heap.pop().unwrap();      
+        println!("debug1");
+
+        let node: Arc<Node> = heap.pop().unwrap();
+        println!("debug2");
         drop(heap);
         
+        /*
         // if stop condition
+        println!("Test stop condition");
         if node.time() > time_bound{
             println!("thread {}, loop {} winner",n, i);
             //put it back in queue
@@ -96,16 +105,19 @@ fn core_process(n: usize, time_bound: f64, m_heap: Arc<Mutex<BinaryHeap<Arc<Node
             drop(heap);
             break;
         }
-        
+        */
+
         // populate children & add to queue
-        let children = gen_children(Arc::clone(&node));
+        println!("Gen children");
+        let children = get_children(node);//gen_children(Arc::clone(&node));
         for child in children {
-            //println!("thread {}\n{}",n,child);
+            println!("thread {}\n{}",n,child);
             let mut heap = m_heap.lock().unwrap();
             heap.push(child);
             drop(heap);
         }
         i += 1;
+        println!("Loop over");
     }
 }
 
