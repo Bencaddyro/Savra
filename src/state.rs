@@ -1,4 +1,4 @@
-use crate::Location;
+use crate::data::*;
 use crate::cargo::*;
 
 #[derive(Debug, Clone)]
@@ -7,5 +7,4 @@ pub struct State {
     pub location: Location,
     pub haul: Cargo,
     pub time: f64,
-    pub score: f64,
 }

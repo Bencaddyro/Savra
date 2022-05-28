@@ -124,4 +124,9 @@ Trader behavior are described with 4 base actions:
 State node are composed of a location, a wallet, a cargo, a time delta from run beginning.
 Path exploration algorithm used is __A*__ with a custom heuristic.
 
+### Thanks & Inspiration
+
+Node strucutre is heavily inspired by [this post](https://developerlife.com/2022/02/24/rust-non-binary-tree/) with source code available [here](https://gist.github.com/rust-play/b194d56e5dcd538d88dc4e490c39862b)
+
+
 

@@ -1,11 +1,7 @@
 use std::collections::{HashSet, HashMap};
-//use std::collections::{HashMap};
 
 use std::{fmt, cmp::*};
 use std::cmp;
-
-
-use std::sync::{Arc,Weak};
 
 use uuid::Uuid;
 
@@ -19,11 +15,10 @@ use crate::action::Action::{Travel,Buy,Sell,Wait};
 #[derive(Debug, Clone)]
 pub struct Node {
     pub id: Uuid,
-    parent: Weak<Node>,
     action: Action,
     state: Option<State>,
-    children: Vec<Arc<Node>>,
 }
+
 
 impl Node {
     pub fn is_root(&self) -> bool {
@@ -109,6 +104,10 @@ impl Node {
     }
 }
 
+
+
+
+
 pub fn get_children(node: Arc<Node>) -> Vec<Arc<Node>> {
         // for now static, depending on node in futur version
         let map = get_map();
@@ -150,25 +149,12 @@ pub fn get_children(node: Arc<Node>) -> Vec<Arc<Node>> {
         children
     }
 
+
+
 impl Ord for Node {
     fn cmp(&self, other: &Self) -> Ordering {
-        println!("cmp {} - {}", self.id, other.id);
-        println!("------------------");
-
-//         println!("{}",self);
-        println!("------------------ * ");
-
-        println!("{}",self.score());
-
-        println!("------------------");
-        println!("{}",other.id);
-        println!("{:?}",other.parent);
-
-        println!("------------------ ** ");
-
-        println!("{}",other.score());
-
-        self.score().partial_cmp(&other.score()).unwrap()
+        //self.score().partial_cmp(&other.score()).unwrap()
+        0.partial_cmp(&0).unwrap()
     }
 }
 impl PartialOrd for Node {
@@ -178,10 +164,12 @@ impl PartialOrd for Node {
 }
 impl PartialEq for Node {
     fn eq(&self, other: &Self) -> bool {
-        self.score() == other.score()
+        //self.score() == other.score()
+        0 == 0
     }
 }
 impl Eq for Node {}
+
 
 impl fmt::Display for Node {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -189,13 +177,13 @@ impl fmt::Display for Node {
     }
 }
 
+
+
 pub fn root(wallet: usize, location: Location, capacity: usize) -> Node {
     Node{
         id: Uuid::new_v4(),
-        parent: Weak::new(),
         state: Some(State{wallet, location, haul: Cargo{capacity, cargo: HashMap::new()}, time: 0.0, score: 0.0,}),
         action: Wait{duration: 0.0},
-        children: Vec::new(),
     }
 }
 
@@ -208,6 +196,8 @@ fn new_child(node: Arc<Node>, action: Action) -> Node {// assuming: action is le
         children: Vec::new(),
     }
 }
+
+
 
 /*
     pub fn dota(&self) -> String {

@@ -1,4 +1,7 @@
-use std::collections::HashMap;
+use std::{
+  collections::HashMap,
+  fmt,
+};
 use crate::Product;
 
 #[derive(Debug, Clone)]
@@ -38,5 +41,15 @@ impl Cargo {
             }
         }
         return space;
+    }
+}
+
+impl fmt::Display for Cargo {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let mut payload = String::new();
+        for (p,a) in self.cargo.iter() {
+            payload.push_str(&format!("--{:<25} {}\n",p,a));
+        }
+        write!(f, "Cargo\t\t{}\n{}", self.capacity, payload)
     }
 }
