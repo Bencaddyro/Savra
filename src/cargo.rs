@@ -42,6 +42,17 @@ impl Cargo {
         }
         return space;
     }
+
+    pub fn empty(&self) -> usize {
+        let mut space = self.capacity;
+        for (_,a) in self.cargo.iter() {
+            space -= 1 * (a / 100);
+            if a % 100 > 0 { space -= 1 }
+        }
+        return space;
+    }
+
+
 }
 
 impl fmt::Display for Cargo {
@@ -50,6 +61,6 @@ impl fmt::Display for Cargo {
         for (p,a) in self.cargo.iter() {
             payload.push_str(&format!("--{:<25} {}\n",p,a));
         }
-        write!(f, "Cargo\t\t{}\n{}", self.capacity, payload)
+        write!(f, "Cargo\t\t{}/{}\n{}", self.empty(), self.capacity, payload)
     }
 }
