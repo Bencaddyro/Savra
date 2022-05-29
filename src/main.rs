@@ -10,18 +10,17 @@ use std::{
 use structopt::StructOpt;
 
 mod action;
-//mod node;
+mod node;
 mod data;
 mod dataplus;
 //mod postprocess;
 mod cargo;
 mod state;
-mod newnode;
 
 //use crate::node::*;
 use crate::data::*;
 //use crate::postprocess::*;
-use crate::newnode::Node;
+use crate::node::Node;
 
 
 #[derive(Debug, StructOpt)]

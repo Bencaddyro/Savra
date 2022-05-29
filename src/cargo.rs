@@ -59,7 +59,7 @@ impl fmt::Display for Cargo {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let mut payload = String::new();
         for (p,a) in self.cargo.iter() {
-            payload.push_str(&format!("--{:<25} {}\n",p,a));
+            payload.push_str(&format!("--{:<25} {}\n",format!("{}",p),a));
         }
         write!(f, "Cargo\t\t{}/{}\n{}", self.empty(), self.capacity, payload)
     }

@@ -39,20 +39,20 @@ fn read_yaml(path: &str) -> Vec<Entry> {
 fn write_data(file: &mut File, location: BTreeSet<String>, product_info: HashMap<String,InfoProd>, get_map: String, get_buy: String, get_sell: String) -> std::io::Result<()> {
 
     file.write(b"use std::collections::HashMap;\n")?;
-    file.write(b"use strum::{EnumString,Display};\n")?;
+    file.write(b"use strum::EnumString;\n")?;
 
     let product = product_info.keys().map(|x| x.to_owned()).collect::<Vec<String>>();
     
     // Enum Location
     file.write(b"\n// Auto-generated Location\n")?;
-    file.write(b"#[derive(Clone, Copy, Hash, Eq, PartialOrd, PartialEq, Debug, Display, EnumString)]\n")?;
+    file.write(b"#[derive(Clone, Copy, Hash, Eq, PartialOrd, PartialEq, Debug, EnumString)]\n")?;
     
     let s = format!("pub enum Location {{\n  {}\n}}",location.into_iter().collect::<Vec<String>>().join(",\n  "));
     file.write(s.as_bytes())?;
     
     // Enum Product
     file.write(b"\n\n// Auto-generated Product\n")?;
-    file.write(b"#[derive(Clone, Copy, Hash, Eq, PartialOrd, PartialEq, Debug, Display)]\n")?;
+    file.write(b"#[derive(Clone, Copy, Hash, Eq, PartialOrd, PartialEq, Debug, EnumString)]\n")?;
     //let s = format!("pub enum Product {{\n  {}\n}}", product_info.clone().into_keys().collect::<Vec<String>>().join(",\n  "));
     let s = format!("pub enum Product {{\n  {}\n}}", product.clone().join(",\n  "));
     file.write(s.as_bytes())?;
@@ -102,8 +102,8 @@ fn write_data(file: &mut File, location: BTreeSet<String>, product_info: HashMap
     Ok(())
 }
 
-fn loc(s: String, v: f64) -> String { format!("(Location::{},{} as f64),",s,v) }
-fn prod(s: String, v: f64) -> String { format!("(Product::{},{} as f64),",s,v) }
+fn loc(s: String, v: f64) -> String { format!("\t(Location::{}, {} as f64),\n",s,v) }
+fn prod(s: String, v: f64) -> String { format!("\t(Product::{}, {} as f64),\n",s,v) }
 
 #[derive(Clone)]
 struct InfoProd(f64,f64);
@@ -143,7 +143,7 @@ fn main() {
         location.insert(e.location.clone().to_case(Case::Pascal));
         
         // get_map
-        get_map.push_str(&format!("(Location::{},[",e.location.to_case(Case::Pascal)));
+        get_map.push_str(&format!("(Location::{},[\n",e.location.to_case(Case::Pascal)));
         for d in e.destination {
             location_control.insert(d.location.clone().to_case(Case::Pascal));
             get_map.push_str(&loc(d.location.to_case(Case::Pascal), d.distance));
@@ -152,7 +152,7 @@ fn main() {
         
         // get_buy
         if e.buy.is_some() {
-            get_buy.push_str(&format!("(Location::{},[",e.location.to_case(Case::Pascal)));
+            get_buy.push_str(&format!("(Location::{},[\n",e.location.to_case(Case::Pascal)));
             for g in e.buy.as_ref().unwrap() {
                 get_buy.push_str(&prod(g.product.clone().to_case(Case::Pascal), g.price));
 
@@ -169,7 +169,7 @@ fn main() {
         
         // get_sell
         if e.buy.is_some() {
-            get_sell.push_str(&format!("(Location::{},[",e.location.to_case(Case::Pascal)));
+            get_sell.push_str(&format!("(Location::{},[\n",e.location.to_case(Case::Pascal)));
             for g in e.sell.as_ref().unwrap() {
                 get_sell.push_str(&prod(g.product.clone().to_case(Case::Pascal), g.price));
                 
