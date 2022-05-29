@@ -1,180 +1,223 @@
-use std::collections::{HashSet, HashMap};
-use std::{fmt, cmp};
-
-
-use std::cmp::Ordering;
-use std::sync::Arc;
-
+use core::fmt::Debug;
+use std::{
+  cmp,
+  cmp::*,
+  fmt,
+  ops::Deref,
+  sync::{Arc, RwLock, Weak},
+  collections::{HashMap,HashSet,},
+};
 use uuid::Uuid;
 
+use crate::state::*;
+use crate::cargo::*;
 use crate::data::*;
 use crate::action::*;
-
-use crate::Node::{Root,Leaf};
 use crate::action::Action::{Travel,Buy,Sell,Wait};
 
+
+
+type NodeDataRef = Arc<NodeData>;
+type WeakNodeNodeRef = Weak<NodeData>;
+type Parent = RwLock<WeakNodeNodeRef>;
+type Children = RwLock<Vec<Child>>;
+type Child = NodeDataRef;
+type Score = RwLock<f64>;
+
+pub struct NodeData {
+  parent: Parent,
+  children: Children,
+  id: Uuid,
+  action: Action,
+  score: Score,
+  state: Option<State>,
+}
+impl NodeData {
+
+  pub fn location(self: &Self) -> Location {
+    match &self.state {
+      Some(s) => s.location,
+      None => match self.action {
+        Travel{location, ..} => location,
+        _ => self.parent.read().unwrap().upgrade().unwrap().location(),
+      }
+    }
+  }
+
+  pub fn time(self: &Self) -> f64 {
+    //println!("time {} <- {} ", self.id, self.parent.read().unwrap().upgrade().unwrap().id);
+    match &self.state {
+      Some(s) => s.time,
+      None => match self.action {
+        Travel{duration, ..} => duration + self.parent.read().unwrap().upgrade().unwrap().time(),
+        Wait{duration} => duration + self.parent.read().unwrap().upgrade().unwrap().time(),
+        _ => self.parent.read().unwrap().upgrade().unwrap().time(),
+      }
+    }
+  }
+
+  pub fn wallet(self: &Self) -> usize {
+    //println!("wallet {} <- {} ", self.id, self.parentid());
+    match &self.state {
+      Some(s) => s.wallet,
+      None => match self.action {
+        Buy{amount, price, ..} => self.parent.read().unwrap().upgrade().unwrap().wallet() - (amount as f64 * price).ceil() as usize,
+        Sell{amount, price, ..} => self.parent.read().unwrap().upgrade().unwrap().wallet() + (amount as f64 * price).ceil() as usize,
+        _ => self.parent.read().unwrap().upgrade().unwrap().wallet(),
+      }
+    }
+  }
+
+  pub fn cargo(&self) -> Cargo {
+    match &self.state {
+      Some(s) => s.haul.clone(),
+      None => match self.action {
+        Buy{product, amount, ..} => self.parent.read().unwrap().upgrade().unwrap().cargo().add(product, amount),
+        Sell{product, amount, ..} => self.parent.read().unwrap().upgrade().unwrap().cargo().remove(product, amount),
+        _ => self.parent.read().unwrap().upgrade().unwrap().cargo(),
+      }
+    }
+  }
+}
+
+
+
+
 #[derive(Debug, Clone)]
-pub enum Node {
-    Root(RootNode),
-    Leaf(LeafNode),
+pub struct Node {
+  arc_ref: NodeDataRef,
 }
-#[derive(Debug, Clone)]
-pub struct RootNode {    
-    id: Uuid,
-    wallet: usize,
-    location: Location,
-    haul: Cargo,
-    time_bound: f64,
-}
-#[derive(Debug, Clone)]
-pub struct LeafNode {
-    pub parent: Arc<Node>,
-    id: Uuid,
-    time: f64,
-    action: Action,
-}
+impl Node
+{
+  pub fn root(wallet: usize, location: Location, capacity: usize) -> Node {
+    let new_node = NodeData {
+      id: Uuid::new_v4(),
+      parent: RwLock::new(Weak::new()),
+      children: RwLock::new(Vec::new()),
+      state: Some(State{wallet, location, time: 0.0, haul: Cargo{capacity, cargo: HashMap::new()}}),
+      score: RwLock::new(0.0),
+      action: Wait{duration: 0.0},
+    };
+    let arc_ref = Arc::new(new_node);
+    Node { arc_ref }
+  }
 
-#[derive(Debug, Clone)]
-struct Cargo {
-    capacity: usize,
-    cargo: HashMap<Product,usize>,
-}
+  pub fn child_action(action: Action) -> Node {
+    let new_node = NodeData {
+      id: Uuid::new_v4(),
+      parent: RwLock::new(Weak::new()),
+      children: RwLock::new(Vec::new()),
+      state: None,
+      score: RwLock::new(0.0),
+      action,
+    };
+    let arc_ref = Arc::new(new_node);
+    Node { arc_ref }
+  }
 
-impl Cargo {
-    fn add(self, product: Product, amount: usize) -> Cargo {
-        let mut c = self.clone();
-        if let Some(current) = c.cargo.get_mut(&product) {
-            *current += amount;
-        }else{
-            c.cargo.insert(product, amount);
+  pub fn get_copy_of_internal_arc(self: &Self) -> NodeDataRef {
+    Arc::clone(&self.arc_ref)
+  }
+
+  pub fn create_and_add_child(self: &Self, action: Action) -> Node {
+    let new_child = Node::child_action(action);
+    self.add_child_and_update_its_parent(&new_child);
+    new_child
+  }
+
+  pub fn update_score(self: &Self, time_limit: f64) {
+    let mut wealth = self.wallet() as f64;
+      if self.time() < time_limit {// add cargo "max" value if not overtime
+        for (p,a) in self.cargo().cargo {// to clean with map / sum
+          wealth += p.max() * a as f64;
         }
-        c
+      }
+    let score: f64 = wealth / self.time();
+    let mut value = self.arc_ref.score.write().unwrap();
+    *value = score;
+  }
+
+  /// 🔏 Write locks used.
+  pub fn add_child_and_update_its_parent(self: &Self, child: &Node) {
+    {
+      let mut my_children = self.arc_ref.children.write().unwrap();
+      my_children.push(child.get_copy_of_internal_arc());
+    } // `my_children` guard dropped.
+    {
+      let mut childs_parent = child.arc_ref.parent.write().unwrap();
+      *childs_parent = Arc::downgrade(&self.get_copy_of_internal_arc());
+    } // `my_parent` guard dropped.
+  }
+
+  pub fn has_parent(self: &Self) -> bool {
+    self.get_parent().is_some()
+  }
+
+  /// 🔒 Read lock used.
+  pub fn get_parent(self: &Self) -> Option<NodeDataRef> {
+    let my_parent_weak = self.arc_ref.parent.read().unwrap();
+    if let Some(my_parent_arc_ref) = my_parent_weak.upgrade() {
+      Some(my_parent_arc_ref)
+    } else {
+      None
     }
-    
-    fn remove(self, product: Product, amount: usize) -> Cargo {
-        let mut c = self.clone();
-        if let Some(current) = c.cargo.get_mut(&product) {
-            *current -= amount;
-            if *current == 0 { c.cargo.remove(&product); }
-        }else{ assert!(false,"Error action sell but no amount in cargo !") }
-        c
+  }
+
+  pub fn gen_children(self: &Self) -> Vec<Node> {
+  // for now static, depending on node in futur version
+    let map = get_map();
+    let buy_table = get_buy();
+    let sell_table = get_sell();
+    let mut children: Vec<Node> = Vec::new();
+
+    //try to move
+    for (destination, distance) in map.get(&self.location()).unwrap() {
+      let child: Node = self.create_and_add_child(Travel{location: *destination, duration: *distance, distance: *distance});
+      children.push(child);
     }
-    
-    fn space(&self, product: Product) -> usize {
-        let mut space = self.capacity * 100;
-        for (p,a) in self.cargo.iter() {
-            if product == *p {
-                space -= a;
-            } else {
-                space -= 100 * (a / 100);
-                if a % 100 > 0 { space -= 100 }            
-            }
+    //try to buy something
+    if buy_table.contains_key(&self.location()) {//location sell something
+      for (product,price) in buy_table.get(&self.location()).unwrap() {
+        let space = self.cargo().space(*product); //empty space in cargo
+        let invest = (self.wallet() as f64 / *price).floor() as usize; //max invest capacity
+        let amount = cmp::min(space, invest);
+        if amount > 0 {
+          let child = self.create_and_add_child(Buy{product: *product, amount, price: *price});
+          children.push(child);
         }
-        return space;
+      }
     }
-}
-
-impl Node {
-    pub fn is_root(&self) -> bool { match self {
-        Root(_) => true,
-        Leaf(_) => false,
-    }}
-
-    pub fn parent(&self) -> Arc<Node> { match self {
-        Root(_) => {println!("root access parent !"); Arc::new((*self).clone())},
-        Leaf(n) => Arc::clone(&n.parent),
-    }}
-
-    pub fn location(&self) -> Location { match self {
-        Root(n) => n.location,
-        Leaf(n) => match n.action {
-            Travel(l,_) => l,
-            _ => n.parent.location()
-        }
-    }}
-    
-    pub fn time(&self) -> f64 { match self {
-        Root(_) => 0.0,
-        Leaf(n) => n.time,
-    }}
-    
-    pub fn wallet(&self) -> usize { match self {
-        Root(n) => n.wallet,
-        Leaf(n) => match n.action {
-            Buy(_,a,p) => n.parent.wallet() - (a as f64 * p).ceil() as usize,
-            Sell(_,a,p) => n.parent.wallet() + (a as f64 * p).ceil() as usize,
-            _ => n.parent.wallet()
-        }
-    }}
-
-    pub fn action(&self) -> Action { match self {
-        Root(_) => {println!("root access action !"); Wait(0.0)},
-        Leaf(n) => n.action,
-    }}
-
-    pub fn id(&self) -> Uuid { match self {
-        Root(n) => n.id,
-        Leaf(n) => n.id,
-    }}
-    
-    pub fn time_bound(&self) -> f64 { match self {
-        Root(n) => n.time_bound,
-        Leaf(n) => n.parent.time_bound(),
-    }}
-    
-    fn score(&self) -> f64 { match self {
-        Root(_) => 0.0,
-        Leaf(_) => {
-            let mut wealth = self.wallet() as f64;
-            if self.time() < self.time_bound() {// add cargo "max" value if not overtime
-                for (p,a) in &self.cargo().cargo {// to clean with map / sum
-                    wealth += p.max() * *a as f64;
-                }
-            }
-            wealth / self.time()
-        }      
-    }}
-    
-    fn cargo(&self) -> Cargo { match self {
-        Root(n) => n.haul.clone(),
-        Leaf(n) => match n.action {
-            Buy(p,a,_) => n.parent.cargo().add(p,a),
-            Sell(p,a,_) => n.parent.cargo().remove(p,a),
-            _ => n.parent.cargo()
-        }
-    }}
-    
-    pub fn dota(&self) -> String {
-        match self.action() {
-        Travel(location, distance) => format!("\"A{}\" [shape=Mrecord,label=\"{1} | {2}\"];\n",self.id().to_simple(), location, distance),
-        Buy(product, amount, price) => format!("\"A{}\" [shape=Mrecord,label=\"{2} | {{ {1} aSCU | {3} ¤UEC }}\"];\n", self.id().to_simple(), amount, product, price),
-        Sell(product, amount, price) => format!("\"A{}\" [shape=Mrecord,label=\"{2} | {{ {1} aSCU | {3} ¤UEC }}\"];\n", self.id().to_simple(), amount, product, price),
-        Wait(time) => format!("\"A{}\" [shape=Mrecord,label=\"Wait {}s\"];\n", self.id().to_simple(),time),
-        }
+    //try to sell something
+    if (!self.cargo().cargo.is_empty()) & //cargo not empty,
+       (sell_table.contains_key(&self.location())) {//location buy something
+      let cargo_product: HashSet<Product> = self.cargo().cargo.keys().cloned().collect();//what we have
+      let location_product: HashSet<Product> = sell_table[&self.location()].keys().cloned().collect();//what they buy
+      for product in cargo_product.intersection(&location_product) {
+        let amount = self.cargo().cargo[product];
+        let price = sell_table[&self.location()][product];
+        let child = self.create_and_add_child(Sell{product: *product, amount, price});
+        children.push(child);
+      }
     }
-    
-    pub fn dot(&self) -> String {
-        if self.is_root() {
-            format!("\"{0}\" [shape=record,label=\"{{ {1}s | h={2:.3}}} | {3}¤UEC | {4}\"];",
-            self.id().to_simple(), self.time(), self.score(), self.wallet(), self.location())
-        } else {
-            format!("\"{0}\" [shape=record,label=\"{{ {1}s | h={2:.3}}} | {3}¤UEC | {4}\"];\n{5}\"{6}\" -> \"A{0}\" -> \"{0}\";\n",
-            self.id().to_simple(), self.time(), self.score(), self.wallet(), self.location(), self.dota(), self.parent().as_ref().id().to_simple())
-        }
-    }  
+    //get mut node from arc
+    children
+  }
+
 
 }
 
-impl fmt::Display for Node {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Node\t\t{}\nScore\t\t{}\nTime\t\t{}\nLocation\t{}\nWallet\t\t{}\nCargo\t\t{:?}\nAction\t\t{}\n",
-                   self.id(), self.score(), self.time(), self.location(), self.wallet(), self.cargo(), self.action())
-    }
+impl Deref for Node
+{
+  type Target = NodeData;
+
+  fn deref(&self) -> &Self::Target {
+    &self.arc_ref
+  }
 }
 
 impl Ord for Node {
     fn cmp(&self, other: &Self) -> Ordering {
-        self.score().partial_cmp(&other.score()).unwrap()
+        self.score.read().unwrap().partial_cmp(&other.score.read().unwrap()).unwrap()
     }
 }
 impl PartialOrd for Node {
@@ -184,101 +227,75 @@ impl PartialOrd for Node {
 }
 impl PartialEq for Node {
     fn eq(&self, other: &Self) -> bool {
-        self.score() == other.score()
+        self.score.read().unwrap().eq(&other.score.read().unwrap())
     }
 }
 impl Eq for Node {}
 
 
-impl Node {
-
-    pub fn travel(&mut self, _location: Location, distance: f64){
-        let speed = 1.0;
-        self.wait(distance / speed);
+impl fmt::Debug for NodeData
+{
+  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    let mut parent_msg = String::new();
+    if let Some(parent) = self.parent.read().unwrap().upgrade() {
+      parent_msg.push_str(format!("📦 {}", parent.id).as_str());
+    } else {
+      parent_msg.push_str("🚫 None");
     }
-    
-    pub fn buy(&mut self, _product: Product, _amount: usize, _price: f64){
-        //println!("wallet {}, amount {}, price {}, total {}",self.wallet, amount, price, (100.0 * amount as f64 * price).ceil() as usize);
-        self.wait(1.0);
-    }
-    
-    pub fn sell(&mut self, _product: Product, _amount: usize, _price: f64){
-        self.wait(1.0);
-    }
-  
-    pub fn wait(&mut self, time: f64){ match self {
-        Root(_) => (),
-        Leaf(n) => n.time += time,
-    }}
-  
+    f.debug_struct("Node")
+      .field("uuid", &self.id)
+      .field("parent", &parent_msg)
+      .field("children", &self.children)
+      .finish()
+  }
 }
 
-pub fn root(wallet: usize, location: Location, capacity: usize, time_bound: f64) -> Node {
-    Root(RootNode{
-        id: Uuid::new_v4(),
-        wallet,
-        location,
-        haul: Cargo{ capacity, cargo: HashMap::new() },
-        time_bound,
-    })
+impl fmt::Display for NodeData {
+  fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    let parentid = match self.parent.read().unwrap().upgrade() {
+      Some(n) => n.id.to_string(),
+      None => "None".to_string(),
+    };
+    write!(f, "\
+      {:<16}{}\n\
+      {:<16}{}\n\
+      {:<16}{}\n\
+      {:<16}{}\n\
+      {:<16}{}\n\
+      {:<16}{}\n\
+      {}\n\
+      {:<16}{}
+      ",
+      "Node", self.id,
+      "Parent", parentid,
+      "Score", self.score.read().unwrap(),
+      "Time", self.time(),
+      "Location", self.location(),
+      "Wallet", self.wallet(),
+      self.cargo(),
+      "Action", self.action
+      )
+    }
 }
 
-pub fn gen_children(node: Arc<Node>) -> Vec<Arc<Node>> {
-    // for now static, depending on node in futur version
-    let map = get_map();
-    let buy_table = get_buy();
-    let sell_table = get_sell();
-    let mut children = Vec::new();
-    
-    //try to move
-        for (destination, distance) in map.get(&node.location()).unwrap() {
-            let child = child_action(&node, Travel(*destination, *distance));
-            children.push(Arc::new(child));
-    }
-    //try to buy something
-    if buy_table.contains_key(&node.location()) {//location sell something
-        for (product,price) in buy_table.get(&node.location()).unwrap() {
-            let space = node.cargo().space(*product); //empty space in cargo
-            let invest = (node.wallet() as f64 / *price).floor() as usize; //max invest capacity
-            let amount = cmp::min(space, invest);
-            if amount > 0 {
-                let child = child_action(&node, Buy(*product, amount, *price));
-                children.push(Arc::new(child));
-            }
+
+/*
+    pub fn dota(&self) -> String {
+        match self.action() {
+        Travel(location, distance) => format!("\"A{}\" [shape=Mrecord,label=\"{1} | {2}\"];\n",self.id().to_simple(), location, distance),
+        Buy(product, amount, price) => format!("\"A{}\" [shape=Mrecord,label=\"{2} | {{ {1} aSCU | {3} ¤UEC }}\"];\n", self.id().to_simple(), amount, product, price),
+        Sell(product, amount, price) => format!("\"A{}\" [shape=Mrecord,label=\"{2} | {{ {1} aSCU | {3} ¤UEC }}\"];\n", self.id().to_simple(), amount, product, price),
+        Wait(time) => format!("\"A{}\" [shape=Mrecord,label=\"Wait {}s\"];\n", self.id().to_simple(),time),
         }
     }
-    //try to sell something
-    if (!node.cargo().cargo.is_empty()) & //cargo not empty,
-        (sell_table.contains_key(&node.location())) {//location buy something
-        let cargo_product: HashSet<Product> = node.cargo().cargo.keys().cloned().collect();//what we have
-        let location_product: HashSet<Product> = sell_table[&node.location()].keys().cloned().collect();//what they buy
-        for product in cargo_product.intersection(&location_product) {
-            let amount = node.cargo().cargo[product];
-            let price = sell_table[&node.location()][product];
-            let child = child_action(&node, Sell(*product, amount, price));
-            children.push(Arc::new(child));
+
+    pub fn dot(&self) -> String {
+        if self.is_root() {
+            format!("\"{0}\" [shape=record,label=\"{{ {1}s | h={2:.3}}} | {3}¤UEC | {4}\"];",
+            self.id().to_simple(), self.time(), self.score(), self.wallet(), self.location())
+        } else {
+            format!("\"{0}\" [shape=record,label=\"{{ {1}s | h={2:.3}}} | {3}¤UEC | {4}\"];\n{5}\"{6}\" -> \"A{0}\" -> \"{0}\";\n",
+            self.id().to_simple(), self.time(), self.score(), self.wallet(), self.location(), self.dota(), self.parent().as_ref().id().to_simple())
         }
     }
-    children
-}
-
-fn child_action(node: &Arc<Node>, action: Action) -> Node {// assuming: action is legal !!!
-    // create child node
-    let mut child = Leaf(LeafNode{
-        parent: Arc::clone(node),
-        id: Uuid::new_v4(),
-        time: node.time(),
-        action: action,
-    });
-    // apply action effect
-    match action {
-        Travel(location, distance) => child.travel(location, distance),
-        Buy(product, amount, price) => child.buy(product, amount, price),
-        Sell(product, amount, price) => child.sell(product, amount, price),
-        Wait(time) => child.wait(time),
-    }
-    child
-}
-
-
-
+    */
