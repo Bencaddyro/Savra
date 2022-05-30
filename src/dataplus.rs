@@ -1,8 +1,6 @@
 use std::fmt;
 use convert_case::{Case, Casing};
-use crate::data::*;
-
-
+use crate::data::{Location, Product};
 
 impl fmt::Display for Location {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -15,4 +13,3 @@ impl fmt::Display for Product {
         write!(f, "{}", format!("{:?}", *self).to_case(Case::Title))
     }
 }
-

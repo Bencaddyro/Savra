@@ -118,6 +118,11 @@ Universe, Product, Location are written in `data_model/*.yml` files. Each file i
 Every location in destination must have their entry somewhere (not necessarily on same file).
 For now only distance stand for location to location link, further refinement is planned. Link can be asymetric (place A to place B but no A from B) and so distance (think lift off vs landing, not same duration)
 
+## Output .dot file
+
+```bash
+neato state.dot -Tpng -o state.png
+```
 
 ## Resolution principle
 

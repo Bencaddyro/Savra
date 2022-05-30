@@ -4,6 +4,7 @@ use std::{
     sync::{Arc, Mutex},
     thread,
     time::Duration,
+    fs::File,
 };
 
 
@@ -14,11 +15,13 @@ mod node;
 mod data;
 mod dataplus;
 //mod postprocess;
+mod dot;
 mod cargo;
 mod state;
 
 //use crate::node::*;
 use crate::data::*;
+use crate::dot::*;
 //use crate::postprocess::*;
 use crate::node::Node;
 
@@ -44,6 +47,12 @@ struct Opt {
 }
 
 fn main() {
+
+    // Print state graph
+    let out_state = "state.dot";
+    let mut file = File::create(out_state).expect(&format!("Unable to open {out_state}"));
+    dot_state(&mut file).unwrap();
+
     //settings
     let opt = Opt::from_args();
     let Opt { money, cargo, location, time, thread } = opt;
