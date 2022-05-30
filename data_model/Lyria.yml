@@ -2,17 +2,18 @@
   destination:
     - location: Paradise Cove
       distance: 50
+      bidirection: 50
     - location: Humboldt Mines
       distance: 50
+      bidirection: 50
     - location: Loveridge Mineral Reserve
       distance: 50
+      bidirection: 50
     - location: The Orphanage
       distance: 50
+      bidirection: 50
 
 - location: The Orphanage
-  destination:
-    - location: Lyria
-      distance: 50
   buy:
     - product: Altruciatoxin
       price: 42.5
@@ -66,9 +67,6 @@
 
 
 - location: Loveridge Mineral Reserve
-  destination:
-    - location: Lyria
-      distance: 50
   buy:
     - product: Astatine
       price: 7
@@ -125,9 +123,6 @@
       capacity: 2000
 
 - location: Humboldt Mines
-  destination:
-    - location: Lyria
-      distance: 50
   buy:
     - product: Chlorine
       price: 1.31
@@ -185,9 +180,6 @@
 
 
 - location: Paradise Cove
-  destination:
-    - location: Lyria
-      distance: 50
   buy:
     - product: Etam
       price: 85

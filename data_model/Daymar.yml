@@ -4,17 +4,18 @@
       distance: 50
     - location: ArcCorp Mining Area 141
       distance: 50
+      bidirection: 50
     - location: Bountiful Harvest Hydroponics
       distance: 50
+      bidirection: 50
     - location: Kudre Ore
       distance: 50
+      bidirection: 50
     - location: Shubin Mining Facility SCD-1
       distance: 50
+      bidirection: 50
       
 - location: ArcCorp Mining Area 141
-  destination:
-    - location: Daymar
-      distance: 50
   buy:
     - product: Agricium
       price: 24.94
@@ -39,9 +40,6 @@
       price: 3.8
       
 - location: Bountiful Harvest Hydroponics
-  destination:
-    - location: Daymar
-      distance: 50
   buy:
     - product: Processed Food
       price: 1.2
@@ -60,9 +58,6 @@
       price: 3.58
       
 - location: Kudre Ore
-  destination:
-    - location: Daymar
-      distance: 50
   buy:
     - product: Agricium
       price: 24.44
@@ -87,9 +82,6 @@
       price: 3.8
 
 - location: Shubin Mining Facility SCD-1
-  destination:
-    - location: Daymar
-      distance: 50
   buy:
     - product: Beryl
       price: 4.05

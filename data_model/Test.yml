@@ -1,0 +1,10 @@
+- location: Test
+  destination:
+    - location: Testy
+      distance: 50
+      bidirection: 200
+
+
+- location: Testy
+  destination:
+

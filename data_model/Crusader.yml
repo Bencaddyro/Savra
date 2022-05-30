@@ -2,9 +2,12 @@
   destination:
     - location: Yela
       distance: 50
+      bidirection: 50
     - location: Cellin
       distance: 50
+      bidirection: 50
     - location: Daymar
       distance: 50
+      bidirection: 50
 
       

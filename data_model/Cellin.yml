@@ -1,21 +1,20 @@
 
 - location: Cellin
   destination:
-    - location: Crusader
-      distance: 50
     - location: Gallete Family Farms
       distance: 50
+      bidirection: 50
     - location: Terra Mills Hydrofarm
       distance: 50
+      bidirection: 50
     - location: Tram Myers Mining
       distance: 50
+      bidirection: 50
     - location: Hickes Research Outpost
       distance: 50
+      bidirection: 50
       
 - location: Hickes Research Outpost
-  destination:
-    - location: Cellin
-      distance: 50
   buy:
     - product: Agricultural Supplies
       price: 1.00
@@ -40,9 +39,6 @@
       price: 1.50  
           
 - location: Terra Mills Hydrofarm
-  destination:
-    - location: Cellin
-      distance: 50
   buy:
     - product: Distilled Spirits
       price: 4.08
@@ -57,9 +53,6 @@
       price: 1.50
 
 - location: Tram Myers Mining
-  destination:
-    - location: Cellin
-      distance: 50
   buy:
     - product: Aluminium
       price: 1.11
@@ -78,9 +71,6 @@
       price: 11.56
 
 - location: Gallete Family Farms
-  destination:
-    - location: Cellin
-      distance: 50
   buy:
     - product: Processed Food
       price: 1.20

@@ -1,20 +1,19 @@
 - location: Yela
   destination:
-    - location: Crusader
-      distance: 50
     - location: Grim Hex
       distance: 50
+      bidirection: 50
     - location: Benson Mining Outpost
       distance: 50
+      bidirection: 50
     - location: Deakins Research Outpost
       distance: 50
+      bidirection: 50
     - location: ArcCorp Mining Area 157
       distance: 50
+      bidirection: 50
       
 - location: Grim Hex
-  destination:
-    - location: Yela
-      distance: 50
   buy:
     - product: Scrap
       price: 1.49
@@ -69,9 +68,6 @@
       price: 126.03
       
 - location: Benson Mining Outpost
-  destination:
-    - location: Yela
-      distance: 50
   buy:
     - product: Astatine
       price: 7.87
@@ -96,9 +92,6 @@
       price: 3.8  
       
 - location: ArcCorp Mining Area 157
-  destination:
-    - location: Yela
-      distance: 50
   buy:
     - product: Astatine
       price: 7.0
@@ -123,9 +116,6 @@
       price: 3.77
 
 - location: Deakins Research Outpost
-  destination:
-    - location: Yela
-      distance: 50
   buy:
     - product: Agricultural Supplies
       price: 1.0
