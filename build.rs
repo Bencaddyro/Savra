@@ -81,26 +81,24 @@ fn process(data: Vec<YamlEntry>, location_enum: &mut BTreeSet<String>, location_
         location_enum.insert(location.clone());
 
         // Get destination
-        let mut data_map: HashMap<String,f64> = HashMap::new();
-        let mut bidirection: Option<(String,f64)> = None;
-
         if e.destination.is_some() {
+            let mut data_map: HashMap<String,f64> = HashMap::new();
             for d in e.destination.unwrap_or_default() {
                 let destination = d.location.to_case(Case::Pascal);
                 location_control.insert(destination.clone());
-                data_map.insert(destination, d.distance);
-                if d.bidirection.is_some() {
-                    ()
+                data_map.insert(destination.clone(), d.distance);
+
+                // Handle bidirection entry
+                if let Some(distance) = d.bidirection {
+                    location_control.insert(location.clone());
+                    if let Some(mut old_data) = get_map.insert(destination.clone(), HashMap::from([(location.clone(), distance)])) {
+                        old_data.insert(location.clone(), distance);
+                        get_map.insert(destination.clone(), old_data);
+                    }
                 }
             }
             get_map.insert(location.clone(), data_map);
         }
-        // need function try to create, if already in hasmap, to add new value
-        // updta location control with destination
-        if bidirection.is_some() {
-            ()
-        }
-
 
         // Get buy
         if e.buy.is_some() {

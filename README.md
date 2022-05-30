@@ -18,12 +18,14 @@ As many martingale provider flourish, like Versemate, Gallog, uexcorp, SC trade 
 
 ### Ingress data model
 
-- [ ] Simpler syntax for bi-directionnal location link
+- [x] Simpler syntax for bi-directionnal location link
 - [ ] Complete data model with more destinations, accurate travel time
 - [ ] Ability to print logical map of the Universe
 - [ ] Add ship profile
 - [ ] Miscellanous info on Location (armistice, hidden, pads, ground vehicle spawn)
 - [ ] Miscellanous info on Product (gas / metal / illegal)
+- [ ] Meaningfull error message on failed import
+- [ ] Deterministic output on info overload in YAML source file
 
 ### Post process & visualisation
 
