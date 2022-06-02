@@ -78,14 +78,55 @@ impl NodeData {
       }
     }
   }
+
+  pub fn get_children(self: &Self) -> Vec<Arc<NodeData>> {
+    self.children.read().unwrap().to_vec()
+  }
+
+  pub fn get_parent(self: &Self) -> Option<NodeDataRef> {
+    let my_parent_weak = self.parent.read().unwrap();
+    if let Some(my_parent_arc_ref) = my_parent_weak.upgrade() {
+      Some(my_parent_arc_ref)
+    } else {
+      None
+    }
+  }
+
+  pub fn to_dot(self: &Self) -> String {
+    let mut s = String::new();
+
+    let id = self.id.to_simple();
+    let wallet = self.wallet();
+    let time = self.time();
+    let location = self.location();
+    let score = self.score.read().unwrap();
+    s.push_str(&format!("\t\"{id}\" [shape=record, label=\" {{ {wallet} ¤UEC | t={time} }} | {{ {location} | s={score:.3} }} | CARGO \"];\n"));
+
+    if let Some(parent) = self.get_parent() {
+      let p_id = parent.id.to_simple();
+      s.push_str(&format!("\t\"{p_id}\" -> \"{id}\";\n"));
+      // TODO print action info from child on edges
+    }
+    s
+  }
 }
 
+/*
+  pub fn dota(self: &Self) -> String {
+    match self.action() {
+      Travel(location, distance) => format!("\"A{}\" [shape=Mrecord,label=\"{1} | {2}\"];\n",self.id().to_simple(), location, distance),
+      Buy(product, amount, price) => format!("\"A{}\" [shape=Mrecord,label=\"{2} | {{ {1} aSCU | {3} ¤UEC }}\"];\n", self.id().to_simple(), amount, product, price),
+      Sell(product, amount, price) => format!("\"A{}\" [shape=Mrecord,label=\"{2} | {{ {1} aSCU | {3} ¤UEC }}\"];\n", self.id().to_simple(), amount, product, price),
+      Wait(time) => format!("\"A{}\" [shape=Mrecord,label=\"Wait {}s\"];\n", self.id().to_simple(),time),
+    }
+  }
+*/
 
 
 
 #[derive(Debug, Clone)]
 pub struct Node {
-  arc_ref: NodeDataRef,
+  pub arc_ref: NodeDataRef,
 }
 impl Node
 {
@@ -153,16 +194,6 @@ impl Node
     self.get_parent().is_some()
   }
 
-  /// 🔒 Read lock used.
-  pub fn get_parent(self: &Self) -> Option<NodeDataRef> {
-    let my_parent_weak = self.arc_ref.parent.read().unwrap();
-    if let Some(my_parent_arc_ref) = my_parent_weak.upgrade() {
-      Some(my_parent_arc_ref)
-    } else {
-      None
-    }
-  }
-
   pub fn gen_children(self: &Self) -> Vec<Node> {
   // for now static, depending on node in futur version
     let map = get_map();
@@ -202,8 +233,6 @@ impl Node
     //get mut node from arc
     children
   }
-
-
 }
 
 impl Deref for Node
@@ -279,23 +308,4 @@ impl fmt::Display for NodeData {
 }
 
 
-/*
-    pub fn dota(&self) -> String {
-        match self.action() {
-        Travel(location, distance) => format!("\"A{}\" [shape=Mrecord,label=\"{1} | {2}\"];\n",self.id().to_simple(), location, distance),
-        Buy(product, amount, price) => format!("\"A{}\" [shape=Mrecord,label=\"{2} | {{ {1} aSCU | {3} ¤UEC }}\"];\n", self.id().to_simple(), amount, product, price),
-        Sell(product, amount, price) => format!("\"A{}\" [shape=Mrecord,label=\"{2} | {{ {1} aSCU | {3} ¤UEC }}\"];\n", self.id().to_simple(), amount, product, price),
-        Wait(time) => format!("\"A{}\" [shape=Mrecord,label=\"Wait {}s\"];\n", self.id().to_simple(),time),
-        }
-    }
 
-    pub fn dot(&self) -> String {
-        if self.is_root() {
-            format!("\"{0}\" [shape=record,label=\"{{ {1}s | h={2:.3}}} | {3}¤UEC | {4}\"];",
-            self.id().to_simple(), self.time(), self.score(), self.wallet(), self.location())
-        } else {
-            format!("\"{0}\" [shape=record,label=\"{{ {1}s | h={2:.3}}} | {3}¤UEC | {4}\"];\n{5}\"{6}\" -> \"A{0}\" -> \"{0}\";\n",
-            self.id().to_simple(), self.time(), self.score(), self.wallet(), self.location(), self.dota(), self.parent().as_ref().id().to_simple())
-        }
-    }
-    */

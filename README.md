@@ -20,7 +20,7 @@ As many martingale provider flourish, like Versemate, Gallog, uexcorp, SC trade 
 
 - [x] Simpler syntax for bi-directionnal location link
 - [ ] Complete data model with more destinations, accurate travel time
-- [ ] Ability to print logical map of the Universe
+- [x] Ability to print logical map of the Universe
 - [ ] Add ship profile
 - [ ] Miscellanous info on Location (armistice, hidden, pads, ground vehicle spawn)
 - [ ] Miscellanous info on Product (gas / metal / illegal)

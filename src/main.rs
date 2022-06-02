@@ -85,6 +85,9 @@ fn main() {
         handle.join().unwrap();
     }
 
+    let out_tree = "tree.dot";
+    let mut file = File::create(out_tree).expect(&format!("Unable to open {out_tree}"));
+    dot_tree(&mut file, root.arc_ref).unwrap();
     /*
     // Post process
     let mut heap = m_heap.lock().unwrap();
@@ -128,6 +131,11 @@ fn core_process(n: usize, time_bound: f64, m_heap: Arc<Mutex<BinaryHeap<Node>>>)
             drop(heap);
         }
         i += 1;
+
+
+        if i > 10 {
+            break;
+        }
         //println!("Loop over");
     }
 

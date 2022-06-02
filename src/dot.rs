@@ -1,6 +1,8 @@
 use std::io::Write;
 use std::fs::File;
+use std::sync::Arc;
 use crate::data::*;
+use crate::node::*;
 
 pub fn dot_state(file: &mut File) -> std::io::Result<()> {
 
@@ -15,7 +17,7 @@ pub fn dot_state(file: &mut File) -> std::io::Result<()> {
     for (location, entry) in map {
         // Location graph
         for (destination, ..) in entry {
-            //file.write(format!("{} -> {} [label=\"{}\"];\n", location, destination, _value).as_bytes()).unwrap();
+            // TODO Handle bidirection with same time
             file.write(format!("\"{location}\" -> \"{destination}\" ;\n").as_bytes())?;
         }
         // Price table
@@ -39,5 +41,21 @@ pub fn dot_state(file: &mut File) -> std::io::Result<()> {
     }
     // Subgraph footer
     file.write(b"}\n")?;
+    Ok(())
+}
+
+
+pub fn dot_tree(file: &mut File, node: Arc<NodeData>) -> std::io::Result<()>{
+    file.write(b"digraph tree {\n\trankdir=\"LR\";\n\toverlap=false;\n")?;
+    dot_tree_rec(file, node).unwrap();
+    file.write(b"}")?;
+    Ok(())
+}
+
+fn dot_tree_rec(file: &mut File, node: Arc<NodeData>) -> std::io::Result<()>{
+    file.write(node.to_dot().as_bytes())?;
+    for child in node.get_children() {
+        dot_tree_rec(file, child).unwrap();
+    }
     Ok(())
 }
