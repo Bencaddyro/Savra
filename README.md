@@ -23,6 +23,7 @@ As many martingale provider flourish, like Versemate, Gallog, uexcorp, SC trade 
 - [x] Ability to print logical map of the Universe
 - [ ] Add ship profile
 - [ ] Miscellanous info on Location (armistice, hidden, pads, ground vehicle spawn)
+- [ ] Miscellanous info on Location: planet, station, outpost, city, OM (update node shape accordingly)
 - [ ] Miscellanous info on Product (gas / metal / illegal)
 - [ ] Meaningfull error message on failed import
 - [ ] Deterministic output on info overload in YAML source file
@@ -39,15 +40,18 @@ As many martingale provider flourish, like Versemate, Gallog, uexcorp, SC trade 
 ### Engine
 
 - [ ] Add ship profile (cargo, fuel, speed/travel time, landing ability)
+- [ ] Update heuristic, max selling price of product minus travel time to go there
+- [ ] Update heuristic, forbid direct U turn
 - [ ] Update heuristic, location attractiveness based on product max profit
 - [ ] Cargo update memory footprint, switch to RwLock
 - [ ] Syntax standardization to access hashmap map[key] vs map.get(key).unwrap()
 - [ ] Const array for location
+- [ ] Rework static vs dynamic data, abandon get_map, get_buy, get_sell (need dynamic price map)
 
 ### Flow refactor & retroaction
 
 - [ ] Implement flow logic for Buy/Sell actions
-- [ ] Add flow information on data model
+- [x] Add flow information on data model
 - [ ] Introduce price variability from current agent
 
 ### Resolution logic
