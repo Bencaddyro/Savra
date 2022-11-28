@@ -19,7 +19,6 @@ mod dot;
 mod cargo;
 mod state;
 
-//use crate::node::*;
 use crate::data::*;
 use crate::dot::*;
 //use crate::postprocess::*;
@@ -59,7 +58,6 @@ fn main() {
     
     //init sdd
     let m_heap: Arc<Mutex<BinaryHeap<Node>>> = Arc::new(Mutex::new(BinaryHeap::new()));
-    //let m_heap = Arc::new(Mutex::new(BinaryHeap::new()));
 
     let mut handles = Vec::new();
     let root = Node::root(money, location, cargo);
@@ -88,6 +86,7 @@ fn main() {
     let out_tree = "tree.dot";
     let mut file = File::create(out_tree).expect(&format!("Unable to open {out_tree}"));
     dot_tree(&mut file, root.arc_ref).unwrap();
+
     /*
     // Post process
     let mut heap = m_heap.lock().unwrap();
@@ -109,20 +108,17 @@ fn core_process(n: usize, time_bound: f64, m_heap: Arc<Mutex<BinaryHeap<Node>>>)
         println!("thread {}, loop {} \n{}",n,i,*node);
 
         // if stop condition
-        //println!("Test stop condition");
         if node.time() > time_bound{
             println!("thread {}, loop {} winner",n, i);
             //put it back in queue
             let mut heap = m_heap.lock().unwrap();
             heap.push(node);
-
             drop(heap);
             break;
         }
 
         // populate children & add to queue
-        //println!("Gen children");
-        let children: Vec<Node> = node.gen_children();//gen_children(Arc::clone(&node));
+        let children: Vec<Node> = node.gen_children();
         for child in children {
             //println!("thread {}\n{}",n,child);
             child.update_score(time_bound);
@@ -132,11 +128,10 @@ fn core_process(n: usize, time_bound: f64, m_heap: Arc<Mutex<BinaryHeap<Node>>>)
         }
         i += 1;
 
-
-        if i > 10 {
+        // Yet another stop condition
+        if i > 20 {
             break;
         }
-        //println!("Loop over");
     }
 
 }

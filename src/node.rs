@@ -100,12 +100,26 @@ impl NodeData {
     let time = self.time();
     let location = self.location();
     let score = self.score.read().unwrap();
-    s.push_str(&format!("\t\"{id}\" [shape=record, label=\" {{ {wallet} ¤UEC | t={time} }} | {{ {location} | s={score:.3} }} | CARGO \"];\n"));
+    let total = self.cargo().capacity;
+    let current = total - self.cargo().empty();
+    s.push_str(&format!("\t\"{id}\" [shape=record, label=\" {{ {wallet} ¤UEC | t={time} }} | {{ {location} | s={score:.3} }} | CARGO {current}/{total}"));
 
+    for (product, amount) in self.cargo().cargo {
+      s.push_str(&format!(" | {{ {product} | {amount} }}"));
+    }
+
+    s.push_str(&format!("\"];\n"));
     if let Some(parent) = self.get_parent() {
       let p_id = parent.id.to_simple();
-      s.push_str(&format!("\t\"{p_id}\" -> \"{id}\";\n"));
-      // TODO print action info from child on edges
+      //let action = self.action;
+      match self.action {
+        Travel{location, duration, distance} => s.push_str(&format!("\"A{id}\" [shape=Mrecord, label=\"{{ MOVE | {duration}s }} | {{ {location} | {distance} }}\"];\n")),
+        Buy{product, amount, price} => s.push_str(&format!("\"A{id}\" [shape=Mrecord, label=\"{{ BUY | {product} }} | {{ {amount} aSCU | {price} ¤UEC }}\"];\n")),
+        Sell{product, amount, price} => s.push_str(&format!("\"A{id}\" [shape=Mrecord, label=\"{{ SELL | {product} }} | {{ {amount} aSCU | {price} ¤UEC }}\"];\n")),
+        Wait{duration} => s.push_str(&format!("\"A{id}\" [shape=Mrecord, label=\"WAIT | {duration}s\"];\n")),
+      }
+      s.push_str(&format!("\t\"{p_id}\" -> \"A{id}\""));
+      s.push_str(&format!("\t\"A{id}\" -> \"{id}\";\n"));
     }
     s
   }
@@ -196,36 +210,30 @@ impl Node
 
   pub fn gen_children(self: &Self) -> Vec<Node> {
   // for now static, depending on node in futur version
-    let map = get_map();
-    let buy_table = get_buy();
-    let sell_table = get_sell();
     let mut children: Vec<Node> = Vec::new();
 
     //try to move
-    for (destination, distance) in map.get(&self.location()).unwrap() {
-      let child: Node = self.create_and_add_child(Travel{location: *destination, duration: *distance, distance: *distance});
+    for (destination, distance) in self.location().get_destination() {
+      let child: Node = self.create_and_add_child(Travel{location: destination, duration: distance, distance});
       children.push(child);
     }
     //try to buy something
-    if buy_table.contains_key(&self.location()) {//location sell something
-      for (product,price) in buy_table.get(&self.location()).unwrap() {
-        let space = self.cargo().space(*product); //empty space in cargo
-        let invest = (self.wallet() as f64 / *price).floor() as usize; //max invest capacity
-        let amount = cmp::min(space, invest);
-        if amount > 0 {
-          let child = self.create_and_add_child(Buy{product: *product, amount, price: *price});
-          children.push(child);
-        }
+    for product in self.location().get_product_buy() {
+      let price = 5.0; //TODO dynamic price
+      let space = self.cargo().space(product); //empty space in cargo
+      let invest = (self.wallet() as f64 / price).floor() as usize; //max invest capacity
+      let amount = cmp::min(space, invest);
+      if amount > 0 {
+        let child = self.create_and_add_child(Buy{product, amount, price});
+        children.push(child);
       }
     }
     //try to sell something
-    if (!self.cargo().cargo.is_empty()) & //cargo not empty,
-       (sell_table.contains_key(&self.location())) {//location buy something
+    if !self.cargo().cargo.is_empty() { //cargo not empty,
       let cargo_product: HashSet<Product> = self.cargo().cargo.keys().cloned().collect();//what we have
-      let location_product: HashSet<Product> = sell_table[&self.location()].keys().cloned().collect();//what they buy
-      for product in cargo_product.intersection(&location_product) {
+      for product in cargo_product.intersection(&self.location().get_product_sell()) { // Intersection what we have and what we can sell
         let amount = self.cargo().cargo[product];
-        let price = sell_table[&self.location()][product];
+        let price = 5.0; // TODO dynamic price
         let child = self.create_and_add_child(Sell{product: *product, amount, price});
         children.push(child);
       }

@@ -6,34 +6,31 @@ use crate::node::*;
 
 pub fn dot_state(file: &mut File) -> std::io::Result<()> {
 
-    // Data
-    let map = get_map();
-    let buy = get_buy();
-    let sell = get_sell();
-
     // Subgraph header
     file.write(b"digraph {\nrankdir=\"LR\";\noverlap=false;\n")?;
 
-    for (location, entry) in map {
+    for location in get_all_location() {
         // Location graph
-        for (destination, ..) in entry {
+        for (destination, ..) in location.get_destination() {
             // TODO Handle bidirection with same time
             file.write(format!("\"{location}\" -> \"{destination}\" ;\n").as_bytes())?;
         }
         // Price table
-        if buy.contains_key(&location) | sell.contains_key(&location) {
+        if !location.get_product_buy().is_empty() | !location.get_product_sell().is_empty() {
             file.write(&format!("\t\"T{location}\" [shape=Mrecord, label=\"\n").as_bytes())?;
-            if buy.contains_key(&location) {
+            if !location.get_product_buy().is_empty() {
                 file.write(b"\tBUY\n")?;
-                for (product, price) in buy.get(&location).unwrap() {
+                for product in location.get_product_buy() {
+                    let price = 5.0; // TODO dynmaic price
                     file.write(format!("\t| {{ {product} | {price:2} ¤UEC }}\n").as_bytes())?;
                 }
                 file.write(b"| ")?;
             }
-            if buy.contains_key(&location) {
+            if !location.get_product_sell().is_empty() {
                 file.write(b"\tSELL\n")?;
-                for (product, price) in sell.get(&location).unwrap() {
-                    file.write(&format!("\t| {{ {product} | {price:2} ¤UEC }}\n").as_bytes())?;
+                for product in location.get_product_sell() {
+                    let price = 5.0; // TODO dynmaic price
+                    file.write(&format!("\t| {{ \"{product}\" | {price:2} ¤UEC }}\n").as_bytes())?;
                 }
             }
             file.write(format!("\"];\n\"{location}\" -> \"T{location}\" [arrowhead=none];\n").as_bytes())?;
@@ -46,7 +43,7 @@ pub fn dot_state(file: &mut File) -> std::io::Result<()> {
 
 
 pub fn dot_tree(file: &mut File, node: Arc<NodeData>) -> std::io::Result<()>{
-    file.write(b"digraph tree {\n\trankdir=\"LR\";\n\toverlap=false;\n")?;
+    file.write(b"digraph tree {\n\trankdir=\"LR\";\n\toverlap=scale;\n\tranksep=0.02\n")?;
     dot_tree_rec(file, node).unwrap();
     file.write(b"}")?;
     Ok(())
