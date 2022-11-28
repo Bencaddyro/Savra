@@ -1,10 +1,10 @@
 use crate::data::*;
-use crate::cargo::*;
+use crate::payload::*;
 
 #[derive(Debug, Clone)]
 pub struct State {
     pub wallet: usize,
     pub location: Location,
-    pub haul: Cargo,
+    pub haul: Payload,
     pub time: f64,
 }

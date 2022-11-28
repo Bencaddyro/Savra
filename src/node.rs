@@ -10,7 +10,7 @@ use std::{
 use uuid::Uuid;
 
 use crate::state::*;
-use crate::cargo::*;
+use crate::payload::*;
 use crate::data::*;
 use crate::action::*;
 use crate::action::Action::{Travel,Buy,Sell,Wait};
@@ -68,16 +68,18 @@ impl NodeData {
     }
   }
 
-  pub fn cargo(&self) -> Cargo {
+  pub fn payload(&self) -> Payload {
     match &self.state {
       Some(s) => s.haul.clone(),
       None => match self.action {
-        Buy{product, amount, ..} => self.parent.read().unwrap().upgrade().unwrap().cargo().add(product, amount),
-        Sell{product, amount, ..} => self.parent.read().unwrap().upgrade().unwrap().cargo().remove(product, amount),
-        _ => self.parent.read().unwrap().upgrade().unwrap().cargo(),
+        Buy{product, amount, ..} => self.parent.read().unwrap().upgrade().unwrap().payload().add(product, amount),
+        Sell{product, amount, ..} => self.parent.read().unwrap().upgrade().unwrap().payload().remove(product, amount),
+        _ => self.parent.read().unwrap().upgrade().unwrap().payload(),
       }
     }
   }
+
+
 
   pub fn get_children(self: &Self) -> Vec<Arc<NodeData>> {
     self.children.read().unwrap().to_vec()
@@ -100,11 +102,11 @@ impl NodeData {
     let time = self.time();
     let location = self.location();
     let score = self.score.read().unwrap();
-    let total = self.cargo().capacity;
-    let current = total - self.cargo().empty();
+    let total = self.payload().capacity;
+    let current = total - self.payload().empty();
     s.push_str(&format!("\t\"{id}\" [shape=record, label=\" {{ {wallet} ¤UEC | t={time} }} | {{ {location} | s={score:.3} }} | CARGO {current}/{total}"));
 
-    for (product, amount) in self.cargo().cargo {
+    for (product, amount) in self.payload().payload {
       s.push_str(&format!(" | {{ {product} | {amount} }}"));
     }
 
@@ -149,7 +151,7 @@ impl Node
       id: Uuid::new_v4(),
       parent: RwLock::new(Weak::new()),
       children: RwLock::new(Vec::new()),
-      state: Some(State{wallet, location, time: 0.0, haul: Cargo{capacity, cargo: HashMap::new()}}),
+      state: Some(State{wallet, location, time: 0.0, haul: Payload{capacity, payload: HashMap::new()}}),
       score: RwLock::new(0.0),
       action: Wait{duration: 0.0},
     };
@@ -182,8 +184,8 @@ impl Node
 
   pub fn update_score(self: &Self, time_limit: f64) {
     let mut wealth = self.wallet() as f64;
-      if self.time() < time_limit {// add cargo "max" value if not overtime
-        for (p,a) in self.cargo().cargo {// to clean with map / sum
+      if self.time() < time_limit {// add payload "max" value if not overtime
+        for (p,a) in self.payload().payload {// to clean with map / sum
           wealth += p.max() * a as f64;
         }
       }
@@ -220,7 +222,7 @@ impl Node
     //try to buy something
     for product in self.location().get_product_buy() {
       let price = 5.0; //TODO dynamic price
-      let space = self.cargo().space(product); //empty space in cargo
+      let space = self.payload().space(product); //empty space in payload
       let invest = (self.wallet() as f64 / price).floor() as usize; //max invest capacity
       let amount = cmp::min(space, invest);
       if amount > 0 {
@@ -229,10 +231,10 @@ impl Node
       }
     }
     //try to sell something
-    if !self.cargo().cargo.is_empty() { //cargo not empty,
-      let cargo_product: HashSet<Product> = self.cargo().cargo.keys().cloned().collect();//what we have
-      for product in cargo_product.intersection(&self.location().get_product_sell()) { // Intersection what we have and what we can sell
-        let amount = self.cargo().cargo[product];
+    if !self.payload().payload.is_empty() { //payload not empty,
+      let payload_product: HashSet<Product> = self.payload().payload.keys().cloned().collect();//what we have
+      for product in payload_product.intersection(&self.location().get_product_sell()) { // Intersection what we have and what we can sell
+        let amount = self.payload().payload[product];
         let price = 5.0; // TODO dynamic price
         let child = self.create_and_add_child(Sell{product: *product, amount, price});
         children.push(child);
@@ -309,7 +311,7 @@ impl fmt::Display for NodeData {
       "Time", self.time(),
       "Location", self.location(),
       "Wallet", self.wallet(),
-      self.cargo(),
+      self.payload(),
       "Action", self.action
       )
     }

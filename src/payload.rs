@@ -5,34 +5,34 @@ use std::{
 use crate::Product;
 
 #[derive(Debug, Clone)]
-pub struct Cargo {
+pub struct Payload {
     pub capacity: usize,
-    pub cargo: HashMap<Product,usize>,
+    pub payload: HashMap<Product,usize>,
 }
 
-impl Cargo {
-    pub fn add(self, product: Product, amount: usize) -> Cargo {
+impl Payload {
+    pub fn add(self, product: Product, amount: usize) -> Payload {
         let mut c = self.clone();
-        if let Some(current) = c.cargo.get_mut(&product) {
+        if let Some(current) = c.payload.get_mut(&product) {
             *current += amount;
         }else{
-            c.cargo.insert(product, amount);
+            c.payload.insert(product, amount);
         }
         c
     }
     
-    pub fn remove(self, product: Product, amount: usize) -> Cargo {
+    pub fn remove(self, product: Product, amount: usize) -> Payload {
         let mut c = self.clone();
-        if let Some(current) = c.cargo.get_mut(&product) {
+        if let Some(current) = c.payload.get_mut(&product) {
             *current -= amount;
-            if *current == 0 { c.cargo.remove(&product); }
-        }else{ assert!(false,"Error action sell but no amount in cargo !") }
+            if *current == 0 { c.payload.remove(&product); }
+        }else{ assert!(false,"Error action sell but no amount in payload !") }
         c
     }
     
     pub fn space(&self, product: Product) -> usize {
         let mut space = self.capacity * 100;
-        for (p,a) in self.cargo.iter() {
+        for (p,a) in self.payload.iter() {
             if product == *p {
                 space -= a;
             } else {
@@ -45,7 +45,7 @@ impl Cargo {
 
     pub fn empty(&self) -> usize {
         let mut space = self.capacity;
-        for (_,a) in self.cargo.iter() {
+        for (_,a) in self.payload.iter() {
             space -= 1 * (a / 100);
             if a % 100 > 0 { space -= 1 }
         }
@@ -55,12 +55,12 @@ impl Cargo {
 
 }
 
-impl fmt::Display for Cargo {
+impl fmt::Display for Payload {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let mut payload = String::new();
-        for (p,a) in self.cargo.iter() {
+        for (p,a) in self.payload.iter() {
             payload.push_str(&format!("--{:<25} {}\n",format!("{}",p),a));
         }
-        write!(f, "Cargo\t\t{}/{}\n{}", self.empty(), self.capacity, payload)
+        write!(f, "Payload\t\t{}/{}\n{}", self.empty(), self.capacity, payload)
     }
 }

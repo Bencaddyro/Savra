@@ -16,7 +16,7 @@ mod data;
 mod dataplus;
 //mod postprocess;
 mod dot;
-mod cargo;
+mod payload;
 mod state;
 
 use crate::data::*;
@@ -33,7 +33,7 @@ struct Opt {
     money: usize,
     #[structopt(short, long, default_value = "564")]
     /// Cargo capacity
-    cargo: usize,
+    payload: usize,
     #[structopt(short, long, default_value = "Crusader")]
     /// Starting location
     location: Location,
@@ -54,13 +54,13 @@ fn main() {
 
     //settings
     let opt = Opt::from_args();
-    let Opt { money, cargo, location, time, thread } = opt;
+    let Opt { money, payload, location, time, thread } = opt;
     
     //init sdd
     let m_heap: Arc<Mutex<BinaryHeap<Node>>> = Arc::new(Mutex::new(BinaryHeap::new()));
 
     let mut handles = Vec::new();
-    let root = Node::root(money, location, cargo);
+    let root = Node::root(money, location, payload);
     m_heap.lock().unwrap().push(root.clone());
 
     {// start thread 0 in advance for queue population
