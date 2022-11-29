@@ -17,6 +17,7 @@ mod dataplus;
 //mod postprocess;
 mod dot;
 mod payload;
+mod market;
 mod state;
 
 use crate::data::*;

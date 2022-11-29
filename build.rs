@@ -19,8 +19,9 @@ struct YamlDestination {
 struct YamlCommodities {
     product: String,
     price: f64,
-    flux: Option<usize>,
+    flux: Option<f64>,
     capacity: Option<usize>,
+    stock: Option<usize>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -36,8 +37,8 @@ struct YamlEntry {
 struct InfoProd(f64, f64);
 
 #[derive(Clone)]
-// InfoFlux: Product, Capacity, Flux
-struct InfoFlux(String, f64, f64);
+// InfoFlux: Price, Capacity, Flux, Stock
+struct InfoFlux(f64, usize, f64, usize);
 
 
 fn main() {
@@ -54,29 +55,34 @@ fn main() {
     }
 
     // Process data
-    let mut location: BTreeSet<String> = BTreeSet::new();
-    let mut location_control: BTreeSet<String> = BTreeSet::new();
+    let mut location_destination: HashMap<String, HashMap<String, f64>> = HashMap::new();   // List all Location, Destination, distance
+    let mut location_control: BTreeSet<String> = BTreeSet::new();                           // List all destination
 
-    let mut product_info: HashMap<String, InfoProd> = HashMap::new();
+    let mut product_info: HashMap<String, InfoProd> = HashMap::new();                       // Product info (min, max)
 
-    let mut location_buy: HashMap<String, Vec<InfoFlux>> = HashMap::new();
-    let mut location_sell: HashMap<String, Vec<InfoFlux>> = HashMap::new();
+    let mut location_buy: HashMap<String, HashMap<String, InfoFlux>> = HashMap::new();      // Where do buy What (price, capacity, flux, stock)
+    let mut location_sell: HashMap<String, HashMap<String, InfoFlux>> = HashMap::new();     // Where do sell What (price, capacity, flux, stock)
 
-    let mut get_map: HashMap<String, HashMap<String, f64>> = HashMap::new();
-    // let mut get_buy: HashMap<String, HashMap<String, f64>> = HashMap::new();
-    // let mut get_sell: HashMap<String, HashMap<String, f64>> = HashMap::new();
+    process(data,
+        &mut location_destination,
+        &mut location_control,
+        &mut product_info,
+        &mut location_buy,
+        &mut location_sell,
+    );
 
-    process(data, &mut location, &mut location_control, &mut product_info, &mut get_map,
-    // &mut get_buy, &mut get_sell,
-    &mut location_buy, &mut location_sell);
-
-    // Check data
-    assert!(location.symmetric_difference(&location_control).cloned().collect::<Vec<_>>().is_empty(), "Destination contains unknow location");
+    // Check data TODO
+    //assert!(location.symmetric_difference(&location_control).cloned().collect::<Vec<_>>().is_empty(), "Destination contains unknow location");
 
     // Write data
     let output = "src/data.rs";
     let mut file = File::create(output).expect(&format!("Unable to open {}",output));
-    write_data(&mut file, location, product_info, get_map, location_buy, location_sell).unwrap();
+    write_data(&mut file,
+        location_destination,
+        product_info,
+        location_buy,
+        location_sell
+    ).unwrap();
 }
 
 
@@ -88,16 +94,12 @@ fn read_yaml(path: &str) -> Vec<YamlEntry> {
 
 fn process(
     data: Vec<YamlEntry>,
-    location_enum: &mut BTreeSet<String>,
+    location_destination: &mut HashMap<String, HashMap<String, f64>>,
     location_control: &mut BTreeSet<String>,
     product_info: &mut HashMap<String, InfoProd>,
-    get_map: &mut HashMap<String, HashMap<String, f64>>,
-    // get_buy: &mut HashMap<String, HashMap<String, f64>>,
-    // get_sell: &mut HashMap<String, HashMap<String, f64>>,
-    location_buy: &mut HashMap<String, Vec<InfoFlux>>,
-    location_sell: &mut HashMap<String, Vec<InfoFlux>>,
+    location_buy: &mut HashMap<String, HashMap<String, InfoFlux>>,
+    location_sell: &mut HashMap<String, HashMap<String, InfoFlux>>,
     ){
-
 
     // Custom Case Converter
     let custom_case = Converter::new()
@@ -107,10 +109,6 @@ fn process(
 
     for e in data {
         let location = custom_case.convert(e.location);
-        // Register location entry
-        location_enum.insert(location.clone());
-
-
 
         // Get destination
         if e.destination.is_some() {
@@ -123,27 +121,29 @@ fn process(
                 // Handle bidirection entry
                 if let Some(distance) = d.bidirection {
                     location_control.insert(location.clone());
-                    if let Some(mut old_data) = get_map.insert(destination.clone(), HashMap::from([(location.clone(), distance)])) {
+                    if let Some(mut old_data) = location_destination.insert(destination.clone(), HashMap::from([(location.clone(), distance)])) {
                         old_data.insert(location.clone(), distance);
-                        get_map.insert(destination.clone(), old_data);
+                        location_destination.insert(destination.clone(), old_data);
                     }
                 }
             }
-            get_map.insert(location.clone(), data_map);
+            location_destination.insert(location.clone(), data_map);
         }
 
         // Get buy
         if e.buy.is_some() {
-            // let mut data_map: HashMap<String,f64> = HashMap::new();
-            // Flux & Capacity
-            let mut info_buy: Vec<InfoFlux> = vec!();
+            let mut info_buy: HashMap<String, InfoFlux> = HashMap::new();
 
             for g in e.buy.unwrap_or_default() {
                 let product = custom_case.convert(g.product);
-                // data_map.in@sert(product.clone(), g.price);
 
-                // Flux & Capacity
-                info_buy.push(InfoFlux(product.clone(), g.capacity.unwrap_or(1000) as f64, g.flux.unwrap_or(500) as f64));
+                // Price, Capacity, Flux, Stock
+                info_buy.insert(product.clone(), InfoFlux(
+                    g.price,
+                    g.capacity.unwrap_or(1000),
+                    g.flux.unwrap_or(500.0),
+                    g.stock.unwrap_or(1000),
+                    ));
 
                 // Min & Max
                 if let Some(InfoProd(min, max)) = product_info.insert(product.clone(), InfoProd(g.price,0.0)) {
@@ -151,33 +151,30 @@ fn process(
                 }
 
             }
-            // get_buy.insert(location.clone(), data_map);
-
             location_buy.insert(location.clone(), info_buy);
 
         }
 
         // Get sell
         if e.sell.is_some() {
-            // let mut data_map: HashMap<String,f64> = HashMap::new();
-
-            // Flux & Capacity
-            let mut info_sell: Vec<InfoFlux> = vec!();
+            let mut info_sell: HashMap<String, InfoFlux> = HashMap::new();
 
             for g in e.sell.unwrap_or_default() {
                 let product = custom_case.convert(g.product);
-                // data_map.insert(product.clone(), g.price);
 
-                // Flux & Capacity
-                info_sell.push(InfoFlux(product.clone(), g.capacity.unwrap_or(1000) as f64, g.flux.unwrap_or(500) as f64));
+                // Price, Capacity, Flux, Stock
+                info_sell.insert(product.clone(), InfoFlux(
+                    g.price,
+                    g.capacity.unwrap_or(1000),
+                    g.flux.unwrap_or(500.0),
+                    g.stock.unwrap_or(1000),
+                ));
 
                 // Min & Max
                 if let Some(InfoProd(min, max)) = product_info.insert(product.clone(), InfoProd(g.price,0.0)) {
                     product_info.insert(product.clone(), InfoProd(min, g.price.max(max)));
                 }
             }
-            // get_sell.insert(location.clone(), data_map);
-
             location_sell.insert(location.clone(), info_sell);
         }
     }
@@ -186,14 +183,10 @@ fn process(
 
 fn write_data(
     file: &mut File,
-    location: BTreeSet<String>,
+    location_destination: HashMap<String, HashMap<String, f64>>,
     product_info: HashMap<String,InfoProd>,
-    get_map: HashMap<String, HashMap<String, f64>>,
-    // get_buy: HashMap<String, HashMap<String, f64>>,
-    // get_sell: HashMap<String, HashMap<String, f64>>,
-
-    location_buy: HashMap<String, Vec<InfoFlux>>,
-    location_sell: HashMap<String, Vec<InfoFlux>>,
+    location_buy: HashMap<String, HashMap<String, InfoFlux>>,
+    location_sell: HashMap<String, HashMap<String, InfoFlux>>,
     ) -> std::io::Result<()> {
 
     // data.rs use
@@ -206,14 +199,14 @@ fn write_data(
     file.write(b"\n// Auto-generated Location\n")?;
     file.write(b"#[derive(Clone, Copy, Hash, Eq, PartialOrd, PartialEq, Debug, EnumString)]\n")?;
     file.write(b"pub enum Location {\n")?;
-    for l in &location {
+    for (l, _) in &location_destination {
         file.write(format!("\t{},\n", l).as_bytes())?;
     }
     file.write(b"}\n")?;
 
     // Location Get All
     file.write(b"pub fn get_all_location() -> HashSet<Location> { HashSet::from_iter(vec!(\n")?;
-    for l in &location {
+    for (l, _) in &location_destination {
         file.write(format!("\tLocation::{},\n", l).as_bytes())?;
     }
     file.write(b"))}\n")?;
@@ -227,7 +220,7 @@ fn write_data(
     file.write(b"\tpub fn get_product_buy(&self) -> HashSet<Product> {\n\t\tmatch self {\n")?;
     for (l, products) in &location_buy {
         file.write(format!("\t\tLocation::{} => HashSet::from_iter(vec!(\n", l).as_bytes())?;
-        for InfoFlux(p, _, _) in products {
+        for (p, _) in products {
             file.write(format!("\t\t\tProduct::{},\n", p).as_bytes())?;
         }
         file.write(format!("\t\t)),\n").as_bytes())?;
@@ -239,7 +232,7 @@ fn write_data(
     file.write(b"\tpub fn get_product_sell(&self) -> HashSet<Product> {\n\t\tmatch self {\n")?;
     for (l, products) in &location_sell {
         file.write(format!("\t\tLocation::{} => HashSet::from_iter(vec!(\n", l).as_bytes())?;
-        for InfoFlux(p, _, _) in products {
+        for (p, _) in products {
             file.write(format!("\t\t\tProduct::{},\n", p).as_bytes())?;
         }
         file.write(format!("\t\t\t)),\n").as_bytes())?;
@@ -250,12 +243,12 @@ fn write_data(
     // Location Capacity
     file.write(b"\tpub fn get_capacity(&self, product: Product) -> f64 {\n\t\tmatch (self, product) {\n")?;
     for (l, products) in &location_buy {
-        for InfoFlux(p, c, _) in products {
+        for (p, InfoFlux(_, c, ..)) in products {
             file.write(format!("\t\t(Location::{}, Product::{}) => {} as f64,\n", l, p, c).as_bytes())?;
         }
     }
     for (l, products) in &location_sell {
-        for InfoFlux(p, c, _) in products {
+        for (p, InfoFlux(_, c, ..)) in products {
             file.write(format!("\t\t(Location::{}, Product::{}) => {} as f64,\n", l, p, c).as_bytes())?;
         }
     }
@@ -265,12 +258,12 @@ fn write_data(
     // Location Flux
     file.write(b"\tpub fn get_flux(&self, product: Product) -> f64 {\n\t\tmatch (self, product) {\n")?;
     for (l, products) in &location_buy {
-        for InfoFlux(p, _, f) in products {
+        for (p, InfoFlux(.., f, _)) in products {
             file.write(format!("\t\t(Location::{}, Product::{}) => {} as f64,\n", l, p, f).as_bytes())?;
         }
     }
     for (l, products) in &location_sell {
-        for InfoFlux(p, _, f) in products {
+        for (p, InfoFlux(.., f, _)) in products {
             file.write(format!("\t\t(Location::{}, Product::{}) => {} as f64,\n", l, p, f).as_bytes())?;
         }
     }
@@ -279,9 +272,9 @@ fn write_data(
 
     // Location Destination
     file.write(b"\tpub fn get_destination(&self) -> HashMap<Location, f64> {\n\t\tmatch self {\n")?;
-    for (location, vec_destination) in &get_map {
+    for (location, destinations) in &location_destination {
         file.write(format!("\t\tLocation::{} => HashMap::from_iter(vec!(\n", location).as_bytes())?;
-        for (destination, distance) in vec_destination {
+        for (destination, distance) in destinations {
             file.write(format!("\t\t\t(Location::{}, {} as f64),\n", destination, distance).as_bytes())?;
         }
         file.write(b"\t\t)),\n")?;
@@ -331,42 +324,35 @@ fn write_data(
 
     // --------------------------------------------------------------------------------------
 
-    // Legacy
-    // GET_MAP
-    // file.write(b"\n// // Auto-generated get_map()\n")?;
-    // file.write(b"pub fn get_map() -> HashMap<Location, HashMap<Location, f64>> {[\n")?;
-    // for (location, vec_destination) in &get_map {
-    //     file.write(format!("\t(Location::{}, [\n", location).as_bytes())?;
-    //     for (destination, distance) in vec_destination {
-    //         file.write(format!("\t\t(Location::{}, {} as f64),\n", destination, distance).as_bytes())?;
-    //     }
-    //     file.write(b"\t\t].iter().cloned().collect()),\n")?;
-    // }
-    // file.write(b"\t].iter().cloned().collect()}\n")?;
-    //
-    // // GET_BUY
-    // file.write(b"\n// // Auto-generated get_buy()\n")?;
-    // file.write(b"pub fn get_buy() -> HashMap<Location, HashMap<Product, f64>> {[\n")?;
-    // for (location, vec_product) in get_buy {
-    //     file.write(format!("\t(Location::{}, [\n", location).as_bytes())?;
-    //     for (product, price) in vec_product {
-    //         file.write(format!("\t\t(Product::{}, {} as f64),\n", product, price).as_bytes())?;
-    //     }
-    //     file.write(b"\t\t].iter().cloned().collect()),\n")?;
-    // }
-    // file.write(b"\t].iter().cloned().collect()}\n")?;
-    //
-    // // GET_SELL
-    // file.write(b"\n// // Auto-generated get_sell()\n")?;
-    // file.write(b"pub fn get_sell() -> HashMap<Location, HashMap<Product, f64>> {[\n")?;
-    // for (location, vec_product) in get_sell {
-    //     file.write(format!("\t(Location::{}, [\n", location).as_bytes())?;
-    //     for (product, price) in vec_product {
-    //         file.write(format!("\t\t(Product::{}, {} as f64),\n", product, price).as_bytes())?;
-    //     }
-    //     file.write(b"\t\t].iter().cloned().collect()),\n")?;
-    // }
-    // file.write(b"\t].iter().cloned().collect()}\n")?;
+    // Reconstruct unified market view
+    let mut market: HashMap<String, HashMap<String, InfoFlux>> = HashMap::new();
+    for (l, products) in &location_buy {
+        market.insert(l.clone(), products.clone());
+    }
+    for (l, products) in &location_sell {
+        if market.contains_key(l) {
+            for (p, e) in products {
+                market.get_mut(l).unwrap().insert(p.clone(), e.clone());
+            }
+        } else {
+            market.insert(l.clone(), products.clone());
+        }
+    }
+
+    // Get Market
+    file.write(b"\n// Auto-generated get_default_market\n")?;
+    file.write(b"pub fn get_default_market() -> HashMap<Location, HashMap<Product, (f64, usize)>> { ")?;
+    file.write(b"HashMap::from_iter(vec!(\n")?;
+    for (l, products) in market {
+        file.write(format!("\t(Location::{}, HashMap::from_iter(vec!(\n", l).as_bytes())?;
+
+        for (p, InfoFlux(price, .., stock)) in products {
+            file.write(format!("\t\t(Product::{}, ({} as f64, {})),\n", p, price, stock).as_bytes())?;
+        }
+        file.write(format!("\t))),\n").as_bytes())?;
+    }
+    file.write(b"))}\n")?;
+
     Ok(())
 }
 

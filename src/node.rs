@@ -70,7 +70,7 @@ impl NodeData {
 
   pub fn payload(&self) -> Payload {
     match &self.state {
-      Some(s) => s.haul.clone(),
+      Some(s) => s.payload.clone(),
       None => match self.action {
         Buy{product, amount, ..} => self.parent.read().unwrap().upgrade().unwrap().payload().add(product, amount),
         Sell{product, amount, ..} => self.parent.read().unwrap().upgrade().unwrap().payload().remove(product, amount),
@@ -151,7 +151,7 @@ impl Node
       id: Uuid::new_v4(),
       parent: RwLock::new(Weak::new()),
       children: RwLock::new(Vec::new()),
-      state: Some(State{wallet, location, time: 0.0, haul: Payload{capacity, payload: HashMap::new()}}),
+      state: Some(State{wallet, location, time: 0.0, payload: Payload{capacity, payload: HashMap::new()}, market: get_default_market()}),
       score: RwLock::new(0.0),
       action: Wait{duration: 0.0},
     };
