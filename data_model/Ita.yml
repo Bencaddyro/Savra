@@ -1,0 +1,72 @@
+- location: Ita
+  destination:
+    - location: HDMS Ryder
+      distance: 50
+      bidirection: 50
+    - location: HDMS Woodruff
+      distance: 50
+      bidirection: 50
+
+- location: HDMS Ryder
+  buy:
+    - product: Agricultural Supplies
+      price: 50
+    - product: Aluminium
+      price: 50
+    - product: Astatine
+      price: 50
+    - product: Beryl
+      price: 50
+    - product: Hydrogen
+      price: 50
+    - product: Waste
+      price: 50
+  sell:
+    - product: Aphorite
+      price: 50
+    - product: Compboard
+      price: 50
+    - product: Distilled Spirits
+      price: 50
+    - product: Dolivine
+      price: 50
+    - product: Hadanite
+      price: 50
+    - product: Medical Supplies
+      price: 50
+    - product: Processed Food
+      price: 50
+    - product: Stims
+      price: 50
+
+- location: HDMS Woodruff
+  buy:
+    - product: Agricultural Supplies
+      price: 50
+    - product: Aluminium
+      price: 50
+    - product: Astatine
+      price: 50
+    - product: Beryl
+      price: 50
+    - product: Hydrogen
+      price: 50
+    - product: Waste
+      price: 50
+  sell:
+    - product: Aphorite
+      price: 50
+    - product: Compboard
+      price: 50
+    - product: Distilled Spirits
+      price: 50
+    - product: Dolivine
+      price: 50
+    - product: Hadanite
+      price: 50
+    - product: Medical Supplies
+      price: 50
+    - product: Processed Food
+      price: 50
+    - product: Stims
+      price: 50

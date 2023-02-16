@@ -1,0 +1,72 @@
+- location: Arial
+  destination:
+    - location: HDMS Bezdek
+      distance: 50
+      bidirection: 50
+    - location: HDMS Lathan
+      distance: 50
+      bidirection: 50
+
+- location: HDMS Bezdek
+  buy:
+    - product: Agricultural Supplies
+      price: 50
+    - product: Aluminium
+      price: 50
+    - product: Laranite
+      price: 50
+    - product: Titanium
+      price: 50
+    - product: Tungsten
+      price: 50
+    - product: Waste
+      price: 50
+  sell:
+    - product: Aphorite
+      price: 50
+    - product: Compboard
+      price: 50
+    - product: Distilled Spirits
+      price: 50
+    - product: Dolivine
+      price: 50
+    - product: Hadanite
+      price: 50
+    - product: Medical Supplies
+      price: 50
+    - product: Processed Food
+      price: 50
+    - product: Stims
+      price: 50
+
+- location: HDMS Lathan
+  buy:
+    - product: Agricultural Supplies
+      price: 50
+    - product: Aluminium
+      price: 50
+    - product: Laranite
+      price: 50
+    - product: Titanium
+      price: 50
+    - product: Tungsten
+      price: 50
+    - product: Waste
+      price: 50
+  sell:
+    - product: Aphorite
+      price: 50
+    - product: Compboard
+      price: 50
+    - product: Distilled Spirits
+      price: 50
+    - product: Dolivine
+      price: 50
+    - product: Hadanite
+      price: 50
+    - product: Medical Supplies
+      price: 50
+    - product: Processed Food
+      price: 50
+    - product: Stims
+      price: 50

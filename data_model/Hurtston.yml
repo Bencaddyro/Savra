@@ -1,0 +1,115 @@
+- location: Hurston
+  destination:
+    - location: Arial
+      distance: 50
+      bidirection: 50
+    - location: Aberdeen
+      distance: 50
+      bidirection: 50
+    - location: Magda
+      distance: 50
+      bidirection: 50
+    - location: Ita
+      distance: 50
+      bidirection: 50
+    - location: Lorville
+      distance: 50
+      bidirection: 50
+    - location: HDMS Edmond
+      distance: 50
+      bidirection: 50
+    - location: HDMS Hadley
+      distance: 50
+      bidirection: 50
+    - location: HDMS Oparei
+      distance: 50
+      bidirection: 50
+    - location: HDMS Pinewood
+      distance: 50
+      bidirection: 50
+    - location: HDMS Stanhope
+      distance: 50
+      bidirection: 50
+    - location: HDMS Thedus
+      distance: 50
+      bidirection: 50
+
+- location: Lorville
+  buy:
+    - product: Agricultural Supplies
+      price: 50
+  sell:
+    - product: Aphorite
+      price: 50
+
+
+- location: HDMS Edmond
+  buy:
+    - product: Agricultural Supplies
+      price: 50
+    - product: Aluminium
+      price: 50
+    - product: Astatine
+      price: 50
+    - product: Beryl
+      price: 50
+    - product: Hydrogen
+      price: 50
+    - product: Waste
+      price: 50
+  sell:
+    - product: Aphorite
+      price: 50
+    - product: Compboard
+      price: 50
+    - product: Distilled Spirits
+      price: 50
+    - product: Dolivine
+      price: 50
+    - product: Hadanite
+      price: 50
+    - product: Medical Supplies
+      price: 50
+    - product: Processed Food
+      price: 50
+    - product: Stims
+      price: 50
+
+- location: HDMS Hadley
+  buy:
+    - product: Agricultural Supplies
+      price: 50
+  sell:
+    - product: Aphorite
+      price: 50
+
+- location: HDMS Oparei
+  buy:
+    - product: Agricultural Supplies
+      price: 50
+  sell:
+    - product: Aphorite
+      price: 50
+- location: HDMS Pinewood
+  buy:
+    - product: Agricultural Supplies
+      price: 50
+  sell:
+    - product: Aphorite
+      price: 50
+
+- location: HDMS Stanhope
+  buy:
+    - product: Agricultural Supplies
+      price: 50
+  sell:
+    - product: Aphorite
+      price: 50
+- location: HDMS Thedus
+  buy:
+    - product: Agricultural Supplies
+      price: 50
+  sell:
+    - product: Aphorite
+      price: 50
+

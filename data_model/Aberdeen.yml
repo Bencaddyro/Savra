@@ -1,0 +1,65 @@
+- location: Aberdeen
+  destination:
+    - location: HDMS Norgaard
+      distance: 50
+      bidirection: 50
+    - location: HDMS Anderson
+      distance: 50
+      bidirection: 50
+
+- location: HDMS Norgaard
+  buy:
+    - product: Agricultural Supplies
+      price: 50
+    - product: Aluminium
+      price: 50
+    - product: Gold
+      price: 50
+    - product: Waste
+      price: 50
+
+  sell:
+    - product: Compboard
+      price: 50
+    - product: Distilled Spirits
+      price: 50
+    - product: Medical Supplies
+      price: 50
+    - product: Processed Food
+      price: 50
+    - product: Stims
+      price: 50
+    - product: Hadanite
+      price: 50
+    - product: Dolivine
+      price: 50
+    - product: Aphorite
+      price: 50
+
+- location: HDMS Anderson
+  buy:
+    - product: Agricultural Supplies
+      price: 50
+    - product: Aluminium
+      price: 50
+    - product: Gold
+      price: 50
+    - product: Waste
+      price: 50
+  sell:
+    - product: Compboard
+      price: 50
+    - product: Distilled Spirits
+      price: 50
+    - product: Medical Supplies
+      price: 50
+    - product: Processed Food
+      price: 50
+    - product: Stims
+      price: 50
+    - product: Hadanite
+      price: 50
+    - product: Dolivine
+      price: 50
+    - product: Aphorite
+      price: 50

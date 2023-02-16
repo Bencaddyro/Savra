@@ -10,6 +10,7 @@ use std::{
 use uuid::Uuid;
 
 use crate::state::*;
+use crate::market::*;
 use crate::payload::*;
 use crate::data::*;
 use crate::action::*;
@@ -79,7 +80,12 @@ impl NodeData {
     }
   }
 
-
+  pub fn market(&self) -> Market {
+    match &self.state {
+      Some(s) => s.market.clone(),
+      None => self.parent.read().unwrap().upgrade().unwrap().market(),
+    }
+  }
 
   pub fn get_children(self: &Self) -> Vec<Arc<NodeData>> {
     self.children.read().unwrap().to_vec()
@@ -221,7 +227,7 @@ impl Node
     }
     //try to buy something
     for product in self.location().get_product_buy() {
-      let price = 5.0; //TODO dynamic price
+      let (price, _stock) = self.market()[&self.location()][&product];
       let space = self.payload().space(product); //empty space in payload
       let invest = (self.wallet() as f64 / price).floor() as usize; //max invest capacity
       let amount = cmp::min(space, invest);
@@ -235,7 +241,7 @@ impl Node
       let payload_product: HashSet<Product> = self.payload().payload.keys().cloned().collect();//what we have
       for product in payload_product.intersection(&self.location().get_product_sell()) { // Intersection what we have and what we can sell
         let amount = self.payload().payload[product];
-        let price = 5.0; // TODO dynamic price
+        let (price, _stock) = self.market()[&self.location()][&product];
         let child = self.create_and_add_child(Sell{product: *product, amount, price});
         children.push(child);
       }

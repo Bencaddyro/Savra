@@ -1,0 +1,74 @@
+- location: Magda
+  destination:
+    - location: HDMS Hahn
+      distance: 50
+      bidirection: 50
+    - location: HDMS Perlman
+      distance: 50
+      bidirection: 50
+
+- location: HDMS Hahn
+  buy:
+    - product: Agricultural Supplies
+      price: 50
+    - product: Aluminium
+      price: 50
+    - product: Chlorine
+      price: 50
+    - product: Diamond
+      price: 50
+    - product: Fluorine
+      price: 50
+    - product: Scrap
+      price: 50
+    - product: Waste
+      price: 50
+  sell:
+    - product: Aphorite
+      price: 50
+    - product: Compboard
+      price: 50
+    - product: Distilled Spirits
+      price: 50
+    - product: Dolivine
+      price: 50
+    - product: Hadanite
+      price: 50
+    - product: Medical Supplies
+      price: 50
+    - product: Processed Food
+      price: 50
+    - product: Stims
+      price: 50
+
+- location: HDMS Perlman
+  buy:
+    - product: Agricultural Supplies
+      price: 50
+    - product: Aluminium
+      price: 50
+    - product: Chlorine
+      price: 50
+    - product: Diamond
+      price: 50
+    - product: Fluorine
+      price: 50
+    - product: Waste
+      price: 50
+  sell:
+    - product: Aphorite
+      price: 50
+    - product: Compboard
+      price: 50
+    - product: Distilled Spirits
+      price: 50
+    - product: Dolivine
+      price: 50
+    - product: Hadanite
+      price: 50
+    - product: Medical Supplies
+      price: 50
+    - product: Processed Food
+      price: 50
+    - product: Stims
+      price: 50
