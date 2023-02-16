@@ -1,3 +1,9 @@
+// ------------------------------------------------------------------------------------------------
+/*
+/   This file will generate static type and data structure from ./data_model on data.rs
+*/
+// ------------------------------------------------------------------------------------------------
+
 use std::collections::BTreeSet;
 use std::collections::HashMap;
 use std::fs;

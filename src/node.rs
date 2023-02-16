@@ -1,3 +1,10 @@
+// ------------------------------------------------------------------------------------------------
+/*
+/   This file define node and various operation on it: most importantly valuation fonction and
+/   child node generation
+*/
+// ------------------------------------------------------------------------------------------------
+
 use core::fmt::Debug;
 use std::{
   cmp,

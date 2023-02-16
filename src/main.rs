@@ -1,3 +1,9 @@
+// ------------------------------------------------------------------------------------------------
+/*
+/   This file is the entry point of the program, it set few flag from cli options, populate initial
+/   node, spawn worker an run A*
+*/
+// ------------------------------------------------------------------------------------------------
 
 use std::{
     collections::BinaryHeap,

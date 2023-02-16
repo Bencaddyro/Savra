@@ -43,6 +43,7 @@ As many martingale provider flourish, like Versemate, Gallog, uexcorp, SC trade 
 - [ ] Update heuristic, max selling price of product minus travel time to go there
 - [ ] Update heuristic, forbid direct U turn
 - [ ] Update heuristic, location attractiveness based on product max profit
+- [ ] Update heuristic, check admissibility
 - [ ] Cargo update memory footprint, switch to RwLock
 - [ ] Syntax standardization to access hashmap map[key] vs map.get(key).unwrap()
 - [ ] Const array for location
