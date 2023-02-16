@@ -1,3 +1,11 @@
+# WARNING
+
+This branch is the start of a refactor, it wis not intended to work !
+The goal is to re think data structure to split immutable data at run (cargo space, list of commodity, logical map, distance) to mutable one's (price, quantity, commodities flux)
+Underlying objective is to minimize node memory footprint by reusing what we can, and optimize time-space tradeoff for the rest
+Possible option is to use filesystem to offload old node in queue with global lock on all worker, that way we can cap memory usage, do not know yet how we can reconstruct solutions with that tricks
+
+
 # Savra
 **StarCitizen commodities trading tool**
 
@@ -142,7 +150,7 @@ Path exploration algorithm used is __A*__ with a custom heuristic.
 
 ## Thanks & Inspiration
 
-Node strucutre is heavily inspired by [this post](https://developerlife.com/2022/02/24/rust-non-binary-tree/) with source code available [here](https://gist.github.com/rust-play/b194d56e5dcd538d88dc4e490c39862b)
+Node structure is heavily inspired by [this post](https://developerlife.com/2022/02/24/rust-non-binary-tree/) with source code available [here](https://gist.github.com/rust-play/b194d56e5dcd538d88dc4e490c39862b)
 
 
 
