@@ -1,11 +1,8 @@
 Features :
 
-- Pool de gagnant (limité par une valeur X)
 - .dot state séparé du solve (map, market)
 - offload node in file (serialization, indirection via global data strucuture (hybrid in memory / in file)
 - prune "similar" node same location, same time, same cargo, same wallet ? relax la condition sur le time ? sur le wallet ? sur le cargo 
-- post process reconstruction from action list, drop parent field (and persistent storage from children)
-
 
 
 évolution strucuture:
@@ -16,13 +13,9 @@ partagé en r/w avec tout les worket
 Metastore -> hashmap uuid:Node
 partagé en r/w avec tout les worker
 
-Node -> immutable -> rajouter des uuid de children (pas de lien mémmoire direct of course) = recréer un node et l'insérer en place
-
 State -> to define pour le market
 payload -> immutable also, on remplace in placepar une new instance qui contient les bonnes valeurs
 
-AStartNode (vertice)
-Action (edge)
 
 StateNode
 
@@ -37,11 +30,7 @@ StateNode
     - Stateless Map
   
 
-
-Reflexion architecturation de code, qui est methode de quoi ?
 function global, methode de struct ?
-
-need un inventaire
 
 Struct Action
     fn Display
@@ -53,9 +42,6 @@ fn global
     
     main // main, classico
     core_process // worker 
-
-struct node
-struct nodeata
 
 struct state
 

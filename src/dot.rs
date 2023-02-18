@@ -6,11 +6,12 @@
 
 use std::io::Write;
 use std::fs::File;
-use std::sync::Arc;
 use crate::data::*;
-use crate::node::*;
+use crate::RefNewNode;
+use crate::Action::{Travel,Buy,Sell,Wait};
 
-pub fn dot_state(file: &mut File) -> std::io::Result<()> {
+
+pub fn dot_universe(file: &mut File) -> std::io::Result<()> {
 
     // Subgraph header
     file.write(b"digraph {\nrankdir=\"LR\";\noverlap=false;\n")?;
@@ -27,7 +28,7 @@ pub fn dot_state(file: &mut File) -> std::io::Result<()> {
             if !location.get_product_buy().is_empty() {
                 file.write(b"\tBUY\n")?;
                 for product in location.get_product_buy() {
-                    let price = 5.0; // TODO dynmaic price
+                    let price = 5.0; // TODO dynamic price
                     file.write(format!("\t| {{ {product} | {price:2} ¤UEC }}\n").as_bytes())?;
                 }
                 file.write(b"| ")?;
@@ -35,7 +36,7 @@ pub fn dot_state(file: &mut File) -> std::io::Result<()> {
             if !location.get_product_sell().is_empty() {
                 file.write(b"\tSELL\n")?;
                 for product in location.get_product_sell() {
-                    let price = 5.0; // TODO dynmaic price
+                    let price = 5.0; // TODO dynamic price
                     file.write(&format!("\t| {{ \"{product}\" | {price:2} ¤UEC }}\n").as_bytes())?;
                 }
             }
@@ -47,18 +48,35 @@ pub fn dot_state(file: &mut File) -> std::io::Result<()> {
     Ok(())
 }
 
+pub fn dot_node(node: &RefNewNode) -> String {
+  let mut s = String::new();
 
-pub fn dot_tree(file: &mut File, node: Arc<NodeData>) -> std::io::Result<()>{
-    file.write(b"digraph tree {\n\trankdir=\"LR\";\n\toverlap=scale;\n\tranksep=0.02\n")?;
-    dot_tree_rec(file, node).unwrap();
-    file.write(b"}")?;
-    Ok(())
-}
 
-fn dot_tree_rec(file: &mut File, node: Arc<NodeData>) -> std::io::Result<()>{
-    file.write(node.to_dot().as_bytes())?;
-    for child in node.get_children() {
-        dot_tree_rec(file, child).unwrap();
-    }
-    Ok(())
+  let p_id = node.parent().simple();
+  let id = node.id().simple();
+  let wallet = node.wallet();
+  let time = node.time();
+  let location = node.location();
+  let score = node.score();
+  let total = node.payload().capacity;
+  let current = total - node.payload().empty();
+
+  s.push_str(&format!("\t\"{id}\" [shape=record, label=\" {{ {wallet} ¤UEC | t={time} }} | {{ {location} | s={score:.3} }} | CARGO {current}/{total}"));
+
+  // for (product, amount) in node.payload().payload {
+    // s.push_str(&format!(" | {{ {product} | {amount} }}"));
+  // }
+
+  s.push_str(&format!("\"];\n"));
+  let action = node.actions()[0];
+  match action {
+    Travel{location, duration, distance} => s.push_str(&format!("\"A{id}\" [shape=Mrecord, label=\"{{ MOVE | {duration}s }} | {{ {location} | {distance} }}\"];\n")),
+    Buy{product, amount, price} => s.push_str(&format!("\"A{id}\" [shape=Mrecord, label=\"{{ BUY | {product} }} | {{ {amount} aSCU | {price} ¤UEC }}\"];\n")),
+    Sell{product, amount, price} => s.push_str(&format!("\"A{id}\" [shape=Mrecord, label=\"{{ SELL | {product} }} | {{ {amount} aSCU | {price} ¤UEC }}\"];\n")),
+    Wait{duration} => s.push_str(&format!("\"A{id}\" [shape=Mrecord, label=\"WAIT | {duration}s\"];\n")),
+  }
+  s.push_str(&format!("\t\"{p_id}\" -> \"A{id}\";\n"));
+  s.push_str(&format!("\t\"A{id}\" -> \"{id}\";\n"));
+
+  s
 }
