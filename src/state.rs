@@ -27,4 +27,51 @@ impl State {
       // }
         wealth / self.time
     }
+/*
+    pub fn wallet(self: &Self, wallet: usize) -> State {
+      State {
+        wallet,
+        location: self.location,
+        payload: self.payload,
+        time: self.time,
+        market: self.market,
+      }
+    }
+    pub fn location(self: &Self, location: Location) -> State {
+      State {
+        wallet: self.wallet,
+        location,
+        payload: self.payload,
+        time: self.time,
+        market: self.market,
+      }
+    }
+    pub fn payload(self: &Self, payload: Payload) -> State {
+      State {
+        wallet: self.wallet,
+        location: self.location,
+        payload,
+        time: self.time,
+        market: self.market,
+      }
+    }
+    pub fn time(self: &Self, time: f64) -> State {
+      State {
+        wallet: self.wallet,
+        location: self.location,
+        payload: self.payload,
+        time,
+        market: self.market,
+      }
+    }
+    pub fn market(self: &Self, market: Market) -> State {
+      State {
+        wallet: self.wallet,
+        location: self.location,
+        payload: self.payload,
+        time: self.time,
+        market,
+      }
+    }*/
 }
+

@@ -6,11 +6,12 @@
 // ------------------------------------------------------------------------------------------------
 
 use std::{
-    collections::BinaryHeap,
-    sync::{Arc, Mutex},
+    collections::{BinaryHeap, BTreeMap},
+    sync::{Arc, RwLock},
     thread,
     time::Duration,
     fs::File,
+    cmp::*,
 };
 
 
@@ -25,11 +26,13 @@ mod dot;
 mod payload;
 mod market;
 mod state;
+mod newnode;
 
 use crate::data::*;
 use crate::dot::*;
 //use crate::postprocess::*;
-use crate::node::Node;
+use crate::newnode::NewNode;
+use uuid::Uuid;
 
 
 #[derive(Debug, StructOpt)]
@@ -47,10 +50,38 @@ struct Opt {
     #[structopt(short, long, default_value = "500")]
     /// Time limit for the run
     time: f64,
-    #[structopt(short="n", long, default_value = "6")]
+    #[structopt(short="n", long, default_value = "1")]
     /// Number of thread for parallel computing
     thread: usize,
 }
+
+struct Tag {
+  id: Uuid,
+  score: f64,
+}
+
+impl Ord for Tag {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.score.partial_cmp(&other.score).unwrap()
+    }
+}
+impl PartialOrd for Tag {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(&other))
+    }
+}
+impl PartialEq for Tag {
+    fn eq(&self, other: &Self) -> bool {
+        self.score.eq(&other.score)
+    }
+}
+impl Eq for Tag {}
+
+
+
+
+type NodeHeap = Arc<RwLock<BinaryHeap<Tag>>>;
+type NodeStore = Arc<RwLock<BTreeMap<Uuid,Arc<NewNode>>>>;
 
 fn main() {
 
@@ -64,83 +95,89 @@ fn main() {
     let Opt { money, payload, location, time, thread } = opt;
     
     //init sdd
-    let m_heap: Arc<Mutex<BinaryHeap<Node>>> = Arc::new(Mutex::new(BinaryHeap::new()));
+    let m_heap: NodeHeap = Arc::new(RwLock::new(BinaryHeap::new()));
+    let m_store: NodeStore = Arc::new(RwLock::new(BTreeMap::new()));
+
 
     let mut handles = Vec::new();
-    let root = Node::root(money, location, payload);
-    m_heap.lock().unwrap().push(root.clone());
+    let root = NewNode::root(money, location, payload);
+
+    m_heap.write().unwrap().push(Tag{id: root.id(), score: root.score()});
+    m_store.write().unwrap().insert(root.id(),Arc::new(root));
 
     {// start thread 0 in advance for queue population
-    let m_heap = Arc::clone(&m_heap);
-    let handle = thread::spawn(move || { core_process(0, time, m_heap) });
-    handles.push(handle);
+      let m_heap = Arc::clone(&m_heap);
+      let m_store = Arc::clone(&m_store);
+      let handle = thread::spawn( move || { core_process(0, time, m_heap, m_store) });
+      handles.push(handle);
     }
 
     thread::sleep(Duration::from_millis(1));
-
     // everyone GET IN HERE
     for n in 1..thread {
         let m_heap = Arc::clone(&m_heap);
-        let handle = thread::spawn(move || { core_process(n, time, m_heap) });
+        let m_store = Arc::clone(&m_store);
+        let handle = thread::spawn(move || { core_process(n, time, m_heap, m_store) });
         handles.push(handle);
     }
     // wait everyone
-
     for handle in handles {
         handle.join().unwrap();
     }
 
-    let out_tree = "tree.dot";
-    let mut file = File::create(out_tree).expect(&format!("Unable to open {out_tree}"));
-    dot_tree(&mut file, root.arc_ref).unwrap();
+    // let out_tree = "tree.dot";
+    // let mut file = File::create(out_tree).expect(&format!("Unable to open {out_tree}"));
+    // dot_tree(&mut file, root.arc_ref).unwrap();
 
-    /*
+
     // Post process
-    let mut heap = m_heap.lock().unwrap();
-    let output = "../";
+    let Tag{id,score} = m_heap.write().unwrap().pop().unwrap();
+    let store = m_store.read().unwrap();
+    let node = store.get(&id).unwrap();
+    println!("Winner ! (with {score}\n{node}");
     //post_process(output.to_string(), &mut heap).unwrap();
 
-    */
 
 }
 
-fn core_process(n: usize, time_bound: f64, m_heap: Arc<Mutex<BinaryHeap<Node>>>) {
+fn core_process(n: usize, time_bound: f64, m_heap: NodeHeap, m_store: NodeStore) {
     let mut i = 0;
+
     loop {
         // get best node
-        let mut heap = m_heap.lock().unwrap();
-        let node: Node = heap.pop().unwrap();
-        drop(heap);
-        
-        println!("thread {}, loop {} \n{}",n,i,*node);
+        let Tag{id,score} = m_heap.write().unwrap().pop().unwrap();
+        println!("thread {n} | loop {i} | Get node {id}");
+
+        let store = m_store.read().unwrap();
+        let node = store.get(&id).unwrap().clone();
+        drop(store);
+        // drop(store);
 
         // if stop condition
-        if node.time() > time_bound{
-            println!("thread {}, loop {} winner",n, i);
+        if node.time() > time_bound {
+            println!("thread {n} | loop {i} | Winner !");
             //put it back in queue
-            let mut heap = m_heap.lock().unwrap();
-            heap.push(node);
-            drop(heap);
+            m_heap.write().unwrap().push( Tag{ id, score });
             break;
         }
 
         // populate children & add to queue
-        let children: Vec<Node> = node.gen_children();
+        let children: Vec<NewNode> = node.gen_children();
         for child in children {
-            //println!("thread {}\n{}",n,child);
-            child.update_score(time_bound);
-            let mut heap = m_heap.lock().unwrap();
-            heap.push(child);
-            drop(heap);
+            // println!("thread {n} | Child:\n{child}");
+            m_heap.write().unwrap().push( Tag{ id: child.id(), score: child.score() });
+            m_store.write().unwrap().insert(child.id(), Arc::new(child));
         }
-        i += 1;
 
+        // Remove node from store
+        m_store.write().unwrap().remove(&id);
+
+        i += 1;
         // Yet another stop condition
         if i > 20 {
             break;
         }
     }
-
 }
 
 
